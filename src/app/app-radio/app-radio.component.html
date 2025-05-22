@@ -1,0 +1,16 @@
+<div id="container" class="container">
+  <div id="header" class="radio-station-grid-cell header">{{title}}</div>
+  @for (radioStation of radioStations; track radioStation.id) {
+    <div
+      id={{radioStation.id}}
+      class="radio-station-grid-cell"
+      [style.background-color]="radioStation.color"
+      [style.grid-area]="radioStation.gridArea"
+      (click)="onSelectStation(radioStation.id)"
+    >
+        {{radioStation.displayName}}
+    </div>
+  }
+  <div id="footer" class="radio-station-grid-cell footer">{{activeStation?.displayName}} &nbsp;&nbsp; #err: {{watchdogRestartCounter}} &nbsp;&nbsp; {{currentTime | date:'H:mm:ss'}}</div>
+  <audio #audioElement (timeupdate)="onTimeUpdate()"></audio>
+</div>
