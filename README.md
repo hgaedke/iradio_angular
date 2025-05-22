@@ -5,7 +5,7 @@ Related project for pure Javascript / HTML: https://github.com/hgaedke/iradio_js
 This readme file contains a how-to for Windows as well as for Rasbian (running on Raspberry PI).
 
 # How-to for Windows
-![Screenshot of the internet radio app in Firefox browser on Windows.](/../main/docs/iradio_home_windows.jpg)
+![Screenshot of the internet radio app in Firefox browser on Windows.](/../main/docs/iradio_home_windows.png)
 
 ## Install, build, run
 * Make sure you have npm installed.
