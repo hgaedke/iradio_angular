@@ -10,7 +10,9 @@ This readme file contains a how-to for Windows as well as for Rasbian (running o
 ## Install, build, run
 * Make sure you have npm installed.
 * Make sure you have a webserver installed. E.g. use http-server (use version 13 to prevent incompatibilities with certain npm versions):
+        ```
         npm install --global http-server@13
+        ```
 * Clone the repository. We assume here you clone it to "c:\iradio_angular".
 * Build as single-page application (i.e. create "c:\iradio_angular\dist\iradio\browser") with
         npm build
