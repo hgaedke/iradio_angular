@@ -5,7 +5,7 @@
       id={{radioStation.id}}
       class="radio-station-grid-cell"
       [style.background-color]="radioStation.color"
-      [style.grid-area]="radioStation.gridArea"
+      [style.grid-area]="computeGridArea($index)"
       (click)="onSelectStation(radioStation.id)"
     >
         {{radioStation.displayName}}

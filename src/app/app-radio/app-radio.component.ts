@@ -37,12 +37,18 @@ export class RadioComponent {
   previousTime? : Date = undefined;
   watchdogRestartCounter : number = 0;
 
+  /**
+   * Set up watchdog for automatic station re-init or switch after a number of errors.
+   */
   ngAfterContentInit() {
     // setup watchdog
     this.intervalFunctionId = setInterval(this.watchdog, this.WATCHDOG_INTERVAL, this);
     //console.log('setInterval ' + this.intervalFunctionId);
   }
 
+  /**
+   * Set radioStations and start playback for first station.
+   */
   ngAfterViewInit() {
     // On component creation, radioStationsInput is still undefined. We therefore need to
     // manually detect a radioStationsInput input change and assign the new value to radioStations.
@@ -54,6 +60,9 @@ export class RadioComponent {
     this.onSelectStation(this.radioStations[0].id); 
   }
 
+  /**
+   * Stops the playback of the currently active station.
+   */
   stopActiveStation() {
     if (this.audioElement.nativeElement.src) {
       //console.log('pausing audioElement');
@@ -63,6 +72,11 @@ export class RadioComponent {
     }
   }
 
+  /**
+   * @param currentStationId 
+   * @returns The next station, where "next" means the station of the next index
+   * (where 0 is the next index after the last element in the radioStations array).
+   */
   getNextStationId(currentStationId : string) {
     let currentIndex : number | undefined = undefined;
     for (let i = 0; i < this.radioStations!.length; ++i) {
@@ -77,11 +91,31 @@ export class RadioComponent {
     return this.radioStations![nextIndex].id;
   }
 
+  /**
+   * Starts the playback for the given station.
+   * 
+   * @param stationId
+   */
   onSelectStation(stationId: string) {
     this.play(stationId);
     this.watchdogRestartCounter = 0;
   }
 
+  /**
+   * See css file, container.grid-template-areas.
+   * 
+   * @param i Cell index, starting with 0.
+   * @returns String identifying the cell id.
+   */
+  computeGridArea(i: number) {
+    return 'radio-station' + i;
+  }
+
+  /**
+   * Stops the currently played audio and starts to play from the station identified by stationId.
+   * 
+   * @param stationId 
+   */
   play(stationId: string) {
     // stop previously played audio
     this.stopActiveStation();
@@ -96,11 +130,18 @@ export class RadioComponent {
     this.activeStation = selectedStation;
   }
 
+  /**
+   * Called when a currentTime update to the HTMLAudioElement occurs;
+   * practically this happens ca. 2-3 time per s.
+   */
   onTimeUpdate() {
     this.currentSystemTime = new Date();
     //console.log('currentTime of audio element: ' + this.audioElement.nativeElement.currentTime);
   }
 
+  /**
+   * Cleanup.
+   */
   ngOnDestroy() {
     // stop previously played audio
     this.stopActiveStation();
@@ -109,6 +150,16 @@ export class RadioComponent {
     clearInterval(this.intervalFunctionId);
   }
 
+  /**
+   * This is run every WATCHDOF_INTERVAL ms (e.g. every 3 s) and checks if
+   * currentTime updates have meanwhile occurred on the HTMLAudioElement, i.e.
+   * if the audio playback is working.
+   * If it is not working, this methods restarts the audio playback.
+   * If the audio playback has not worked WATCHDOG_NUM_RESTARTS_FOR_STATION_SWITCH (e.g. 3)
+   * times, this method switches the radio station to the next index.
+   * 
+   * @param radioComponent Reference to this component.
+   */
   watchdog(radioComponent: RadioComponent) {
     if (radioComponent.activeStation) {
       if (radioComponent.previousTime === radioComponent.currentSystemTime) {
@@ -128,6 +179,7 @@ export class RadioComponent {
         }
       }
     }
+
     radioComponent.previousTime = radioComponent.currentSystemTime;
   }
 }

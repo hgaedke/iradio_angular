@@ -3,5 +3,4 @@ export type RadioStation = {
   displayName: string;
   url: string;
   color: string;
-  gridArea: string;
 }
