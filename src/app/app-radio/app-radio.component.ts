@@ -26,7 +26,7 @@ export class RadioComponent {
 
   activeStation? : RadioStation = undefined;
   
-  currentTime? : Date = undefined; // system time, updated on timeupdate of audio element
+  currentSystemTime? : Date = undefined; // system time, updated on timeupdate of audio element
 
   @ViewChild('audioElement') audioElement!: ElementRef; // uses the HTMLAudioElement declared in the HTML template for playback
 
@@ -97,7 +97,8 @@ export class RadioComponent {
   }
 
   onTimeUpdate() {
-    this.currentTime = new Date();
+    this.currentSystemTime = new Date();
+    //console.log('currentTime of audio element: ' + this.audioElement.nativeElement.currentTime);
   }
 
   ngOnDestroy() {
@@ -110,7 +111,7 @@ export class RadioComponent {
 
   watchdog(radioComponent: RadioComponent) {
     if (radioComponent.activeStation) {
-      if (radioComponent.previousTime === radioComponent.currentTime) {
+      if (radioComponent.previousTime === radioComponent.currentSystemTime) {
         ++radioComponent.watchdogRestartCounter;
       
         if (radioComponent.watchdogRestartCounter % radioComponent.WATCHDOG_NUM_RESTARTS_FOR_STATION_SWITCH != 0) {
@@ -127,6 +128,6 @@ export class RadioComponent {
         }
       }
     }
-    radioComponent.previousTime = radioComponent.currentTime;
+    radioComponent.previousTime = radioComponent.currentSystemTime;
   }
 }

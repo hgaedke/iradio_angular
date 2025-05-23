@@ -11,6 +11,6 @@
         {{radioStation.displayName}}
     </div>
   }
-  <div id="footer" class="radio-station-grid-cell footer">{{activeStation?.displayName}} &nbsp;&nbsp; #err: {{watchdogRestartCounter}} &nbsp;&nbsp; {{currentTime | date:'H:mm:ss'}}</div>
+  <div id="footer" class="radio-station-grid-cell footer">{{activeStation?.displayName}} &nbsp;&nbsp; #err: {{watchdogRestartCounter}} &nbsp;&nbsp; {{currentSystemTime | date:'H:mm:ss'}}</div>
   <audio #audioElement (timeupdate)="onTimeUpdate()"></audio>
 </div>
