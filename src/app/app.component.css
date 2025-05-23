@@ -7,8 +7,6 @@ main {
   grid-template-areas:
     "menu content";
   grid-template-columns: 9vw 1fr;
-  gap: 5px;
   background-color: black;
-  padding: 5px;
   height: 100%;
 }

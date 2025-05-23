@@ -9,10 +9,9 @@
                        "radio-station4 radio-station5 radio-station6"
                        "footer         footer         footer";
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 10% 40% 40% 10%;
+  grid-template-rows: 3.5em auto auto 3.5em;
   gap: 5px;
   background-color: black;
-  padding: 5px;
   height: 100%;
   width: 100%;
 }
@@ -36,8 +35,4 @@
 .footer {
   grid-area: footer;
   color: white;
-
-  /* These two lines are a workaround for the text in the footer not being centered vertically when omitting them. */
-  display: block; /*workaround*/
-  padding-top: 5px; /*workaround*/
 }
