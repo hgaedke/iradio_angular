@@ -1,1 +1,0 @@
-export type AllowedApps = "radio1" | "radio2" | "music" | "video";
