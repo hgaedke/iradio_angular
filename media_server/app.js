@@ -71,7 +71,7 @@ app.use((req, res, next) => {
  * Example:
  *   http://localhost:3000/music/showFolder?relativeDirectory=.
  */ 
-app.get("/music/showFolder", async (req, res) => {
+app.get("/music/showFolder", (req, res) => {
   if (!req.query.relativeDirectory) {
     res.status(500).json({ error: 'relativeDirectory argument missing!' });
     return;
@@ -107,7 +107,7 @@ app.get("/music/showFolder", async (req, res) => {
  * Example:
  *   http://localhost:3000/music/stream?relativeFilePath=80er\Piano%20Band\Piano.mp3
  */
-app.get("/music/stream", async (req, res) => {
+app.get("/music/stream", (req, res) => {
   if (!req.query.relativeFilePath) {
     res.status(500).send('relativeFilePath argument missing!');
     return;
