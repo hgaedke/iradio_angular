@@ -27,11 +27,11 @@ In addition to the previous steps:
 * Copy MP3 music files of your choice to the music folder, where each music file needs to be located in an album directory, e.g.  
 `c:\iradio_js\music\my_album\my_music.mp3`  
 You can have multiple files per album and multiple albums as well.
-* Start the media server by going to the media_server subdirectory and running
+* Start the media server by going to the media_server subdirectory and running  
         `node app.js "c:/iradio_js/music" videoDir`  
 where "c:/iradio_js/music" is used as global music directory in this example. Just ignore the "videoDir" parameter; it's just
 a placeholder for future development. However, it must be any non-empty string.
-* Open "c:\iradio_js\iradio\home.html" in your local browser.
+* Open "http://localhost:8080" in your local browser.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
 
 
