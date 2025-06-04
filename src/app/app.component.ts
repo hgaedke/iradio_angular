@@ -5,10 +5,11 @@ import { RadioComponent } from './app-radio/app-radio.component';
 import { AllowedApps } from './shared/app-common-types.model';
 import { RADIO_STATIONS1, RADIO_STATIONS2 } from './shared/app-radio-stations.model';
 import { RadioStation } from './shared/app-radio.model';
+import { MusicComponent } from './app-music/app-music.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenuComponent, RadioComponent],
+  imports: [RouterOutlet, MenuComponent, RadioComponent, MusicComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

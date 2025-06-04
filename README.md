@@ -7,11 +7,13 @@ This readme file contains a how-to for Windows as well as for Rasbian (running o
 # How-to for Windows
 ![Screenshot of the internet radio app in Firefox browser on Windows.](/../main/docs/iradio_home_windows.png)
 
-## Install, build, run
+## Internet Radio: Install, build, run
 * Make sure you have npm installed.
 * Make sure you have a webserver installed. E.g. use http-server (use version 13 to prevent incompatibilities with certain npm versions):  
         `npm install --global http-server@13`
 * Clone the repository. We assume here you clone it to "c:\iradio_angular".
+* Collect the dependencies via
+        `npm install`
 * Build as single-page application (i.e. create "c:\iradio_angular\dist\iradio\browser") with  
         `npm build`
 * Use your webserver to serve "c:\iradio_angular\dist\iradio\browser", in case of http-server:  
@@ -20,8 +22,20 @@ This readme file contains a how-to for Windows as well as for Rasbian (running o
 * Click one of the radio station buttons and listen to the music.
 * To adjust the radio stations to use and the background colors, edit "c:\iradio_angular\iradio\src\app\shared\app-radio-stations.ts" and rebuild.
 
+## Use the local music playback in addition
+In addition to the previous steps:
+* Copy MP3 music files of your choice to the music folder, where each music file needs to be located in an album directory, e.g.  
+`c:\iradio_js\music\my_album\my_music.mp3`  
+You can have multiple files per album and multiple albums as well.
+* Start the media server by going to the media_server subdirectory and running
+        `node app.js "c:/iradio_js/music" videoDir`  
+where "c:/iradio_js/music" is used as global music directory in this example. Just ignore the "videoDir" parameter; it's just
+a placeholder for future development. However, it must be any non-empty string.
+* Open "c:\iradio_js\iradio\home.html" in your local browser.
+* Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
 
-# How-to for Rasbian
+
+# How-to for Rasbian (no local music support yet; will come soon)
 This assumes that you have a Raspberry PI with Rasbian OS and a touch screen attached, and that you use username "pi".
 
 ## Install, run

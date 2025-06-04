@@ -1,0 +1,38 @@
+<div id="container" class="container">
+  <div id="header" class="header content-row sticky">{{title}}</div>
+
+  @if (showBackButton) {
+    <div id="backButton"
+      class="content-row horizontal-align-left sticky"
+      (click)="onClickBackButton()"
+    >
+      <p><img src="back.png" alt="back arrow" height="60" /></p>
+    </div>
+  }
+
+  @if (viewMode === ViewMode.VIEW_MODE_FOLDER) {
+    @for (dirName of folderContents.directories; track dirName) {
+      <div
+        class="content-row list-item"
+        [style.background-color]="getBackgroundColor($even)"
+        (click)="onSelectSubdirectory(dirName)"
+      >
+        <p>{{dirName}}</p>
+      </div>
+    }
+  }
+
+  @if (viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+    @for (fileName of folderContents.files; track fileName) {
+      <div
+        class="content-row list-item"
+        [style.background-color]="getBackgroundColor($even)"
+        (click)="onSelectPlayableFile(fileName)"
+      >
+        <p>{{fileName}}</p>
+      </div>
+    }
+
+    <audio controls #audioElement style="width: 100%;"></audio>
+  }
+</div>

@@ -3,10 +3,6 @@ import fs from "node:fs";
 import bodyParser from "body-parser";
 import express from "express";
 
-// ===================================
-// start (in media_server/):
-// node app.js "e:/Programmieren/Internetradio Raspberry Pi/music" videoDir
-// ===================================
 
 const app = express();
 const SERVER_PORT = 3000;
@@ -94,6 +90,7 @@ app.get("/music/showFolder", (req, res) => {
     directories: dirs,
     files: files,
   });
+  return;
 });
 
 
@@ -124,9 +121,18 @@ app.get("/music/stream", (req, res) => {
     if (err) {
       console.log('Problem sending file ' + absoluteFilePath + ': ' + err);
       res.status(500).send('Problem sending file ' + req.query.relativeFilePath + ': ' + err);
+      return;
     } else {
       console.log('File sent successfully: ' + absoluteFilePath);
-      res.status(200).send();
+
+      // ERR_HTTP_HEADERS_SENT happens on sending status 200 when pressing the back button while a playback is running;
+      // no idea why :-(   => However, catching that error here helps.
+      try {
+        res.status(200).send();
+      } catch (e) {
+        console.log('Error sending status 200: ' + e);
+      }
+      return;
     }
   });
 });
