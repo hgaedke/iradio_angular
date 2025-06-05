@@ -12,7 +12,7 @@ This readme file contains a how-to for Windows as well as for Rasbian (running o
 * Make sure you have a webserver installed. E.g. use http-server (use version 13 to prevent incompatibilities with certain npm versions):  
         `npm install --global http-server@13`
 * Clone the repository. We assume here you clone it to "c:\iradio_angular".
-* Collect the dependencies via
+* Collect the dependencies via  
         `npm install`
 * Build as single-page application (i.e. create "c:\iradio_angular\dist\iradio\browser") with  
         `npm build`
@@ -67,11 +67,11 @@ This assumes that you have a Raspberry PI with Rasbian OS and a touch screen att
 In addition to the previous steps:
 * Copy MP3 music files of your choice to folder "/music", where each music file needs to be located in an album directory, e.g. "/music/my_album/my_music.mp3". You can have multiple files per album and multiple albums as well.
 * Have the MediaServer started automatically on login by adding this line to "/etc/xdg/lxsession/LXDE-pi/autostart":  
-    @node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video
+        `@node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video`
     * The full iradio-related content of "/etc/xdg/lxsession/LXDE-pi/autostart" then is:  
-    @node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video  
-    @http-server /home/pi/Desktop/iradio_angular  
-    @chromium-browser --start-fullscreen --incognito --autoplay-policy=no-user-gesture-required http://localhost:8080
+        `@node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video`  
+        `@http-server /home/pi/Desktop/iradio_angular`  
+        `@chromium-browser --start-fullscreen --incognito --autoplay-policy=no-user-gesture-required http://localhost:8080`
 * Restart your Raspberry.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
 
