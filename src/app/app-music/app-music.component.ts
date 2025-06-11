@@ -29,6 +29,8 @@ export class MusicComponent {
   albumName: string = '';
 
   private enableAutoStart = false; // used to defer the music autostart until after the next render
+  private enableScrollToFirstRow = false; // used to defer the initial list scrolling until after the next render;
+                                          // this is necessary, because on init the list is still empty
 
   @ViewChild('audioElement') audioElement!: ElementRef; // uses the HTMLAudioElement declared in the HTML template for playback
 
@@ -42,6 +44,13 @@ export class MusicComponent {
     });
 
     afterRender(() => {
+      // Cannot directly scroll to the first row in init, because the list has no entries yet
+      // at that time.
+      if (this.enableScrollToFirstRow) {
+        this.enableScrollToFirstRow = false;
+        this.updateScrollPosition(0);
+      }
+
       // Cannot directly call onSelectPlayableFile from updateViewMode, because the element reference
       // to the audio element is not yet ready at that time.
       if (this.enableAutoStart) {
@@ -100,6 +109,12 @@ export class MusicComponent {
       // sure that the audio element reference is accessible on the onSelectPlayableFile call.
       this.enableAutoStart = true;
     }
+
+    // after view mode update (i.e. entering the page), scroll to the first entry in the list
+    if (this.folderContents.files.length > 0 || this.folderContents.directories.length > 0) {
+      // Same defer approach as above.
+      this.enableScrollToFirstRow = true;
+    }
   }
 
   /**
@@ -132,6 +147,33 @@ export class MusicComponent {
   }
 
   /**
+   * Scrolls the list container so that the entry with the given row number (targetRowNumber) is
+   * centered inside the list container.
+   * 
+   * @param targetRowNumber
+   */
+  updateScrollPosition(targetRowNumber: number) {
+    let listDiv = document.getElementById('list')!;
+    const firstRowDiv = document.getElementById(this.getRowId(0))!;
+    const targetRow = document.getElementById(this.getRowId(targetRowNumber))!;
+    
+    // absolute y pos of first row
+    const y0 = firstRowDiv.offsetTop;
+    
+    // relative y pos of current row
+    let yTargetRel = targetRow.offsetTop - y0;
+
+    // subtract half of the shown list div height to _center_ the target row (instead having it at the top)
+    yTargetRel -= listDiv.clientHeight / 2;
+
+    // scroll to the center of the row, not the top of it
+    yTargetRel += targetRow.clientHeight / 2;
+
+    // scroll
+    listDiv.scrollTop = yTargetRel;
+  }
+
+  /**
    * @param firstColor
    * @returns this.FIRST_BACKGROUND_COLOR if firstColor is true; this.SECOND_BACKGROUND_COLOR otherwise.
    */
@@ -141,6 +183,14 @@ export class MusicComponent {
     } else {
       return this.SECOND_BACKGROUND_COLOR;
     }
+  }
+
+  /**
+   * @param rowNumber 
+   * @returns An ID computed from rowNumber.
+   */
+  getRowId(rowNumber: number) {
+    return 'row_id_' + String(rowNumber);
   }
 
   /**
@@ -171,9 +221,20 @@ export class MusicComponent {
     this.audioElement.nativeElement.load();
     this.audioElement.nativeElement.play();
 
+    this.updateScrollPosition(this.getIndex(fileName, this.folderContents.files));
+
     this.destroyRef.onDestroy(() => {
       this.stopPlayback();
     });
+  }
+
+  /**
+   * @param containedElement 
+   * @param container 
+   * @returns The index of containedElement in container; -1 if containedElement is not contained in container.
+   */
+  getIndex(containedElement: string, container: string[]) {
+    return container.findIndex((elem) => elem === containedElement);
   }
 
   /**
