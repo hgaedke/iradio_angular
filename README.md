@@ -76,4 +76,4 @@ In addition to the previous steps:
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
 
 ### Known problems
-* No scrolling yet (will come soon).
+* When a song finishes, the next song does not yet start automatically.
