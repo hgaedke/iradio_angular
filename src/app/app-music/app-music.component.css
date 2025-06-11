@@ -13,19 +13,14 @@
   gap: 5px;
   background-color: black;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
 }
 
 .content-row {
   font-size: 200%;
-  height: 1.75em;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.horizontal-align-left {
-  text-align: left;
 }
 
 .list-item {
@@ -39,9 +34,22 @@
   text-align: center;
 }
 
+.album-with-back-button {
+  grid-area: album;
+  display: grid;
+  grid-template-areas: "back-button album";
+  grid-template-columns: 60px auto;
+  grid-template-rows: 1fr;
+}
+
+.back-button {
+  grid-area: back-button;  
+}
+
 .album {
   grid-area: album;
   color: white;
+  font-size: 200%;
   text-align: center;
 }
 

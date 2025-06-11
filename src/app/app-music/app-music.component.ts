@@ -26,6 +26,7 @@ export class MusicComponent {
   };
   viewMode: ViewMode = ViewMode.VIEW_MODE_FOLDER;
   showBackButton: boolean = false;
+  albumName: string = '';
 
   private enableAutoStart = false; // used to defer the music autostart until after the next render
 
@@ -63,6 +64,7 @@ export class MusicComponent {
       };
       this.updateViewMode();
       this.updateBackButtonVisibility();
+      this.updateAlbumName();
     });
 
     this.destroyRef.onDestroy(() => {
@@ -114,6 +116,18 @@ export class MusicComponent {
       }
     } else {
       this.showBackButton = true;
+    }
+  }
+
+  /**
+   * Updates this.albumName according to the last selected subdirectory.
+   */
+  updateAlbumName() {
+    const indexSlash = this.relativeDirectory().lastIndexOf('/');
+    if (indexSlash < 0 || indexSlash >= this.relativeDirectory().length) {
+      this.albumName = '';
+    } else {
+      this.albumName = this.relativeDirectory().substring(indexSlash + 1, this.relativeDirectory().length);
     }
   }
 

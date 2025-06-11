@@ -1,11 +1,13 @@
 <div id="container" class="container">
   <div id="header" class="header content-row">{{title}}</div>
 
-  <div id="album" class="album content-row horizontal-align-left ">
-    @if (showBackButton) {
-      <p><img src="back.png" alt="back arrow" height="60" (click)="onClickBackButton()" /></p>
-    }
-    TODO: album name
+  <div id="albumWithBackButton" class="album-with-back-button">
+    <div id="backButton" class="back-button">
+      @if (showBackButton) {
+        <img src="back.png" alt="back arrow" height="60" (click)="onClickBackButton()" />
+      }
+    </div>
+    <div id="album" class="album">{{albumName}}</div>
   </div>
 
   <div id="list" class="list">
