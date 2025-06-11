@@ -3,16 +3,21 @@
 }
 
 .container {
+  display: grid;
+  grid-template-areas: "header"
+                       "album"
+                       "list"
+                       "footer";
+  grid-template-columns: 1fr;
+  grid-template-rows: 3.5em 3.5em auto 3.5em;
+  gap: 5px;
   background-color: black;
-}
-
-.sticky {
-  position: sticky;
+  height: 100vh;
+  width: 100vw;
 }
 
 .content-row {
   font-size: 200%;
-  width: 100%;
   height: 1.75em;
   display: flex;
   flex-direction: column;
@@ -20,15 +25,33 @@
 }
 
 .horizontal-align-left {
-    text-align: left;
-}
-
-.header {
-  color: white;
-  text-align: center;
+  text-align: left;
 }
 
 .list-item {
   color: black;
+  text-align: center;
+}
+
+.header {
+  grid-area: header;
+  color: white;
+  text-align: center;
+}
+
+.album {
+  grid-area: album;
+  color: white;
+  text-align: center;
+}
+
+.list {
+  grid-area: list;
+  overflow: auto;
+}
+
+.footer {
+  grid-area: footer;
+  color: white;
   text-align: center;
 }

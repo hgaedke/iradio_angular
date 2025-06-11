@@ -1,38 +1,42 @@
 <div id="container" class="container">
-  <div id="header" class="header content-row sticky">{{title}}</div>
+  <div id="header" class="header content-row">{{title}}</div>
 
-  @if (showBackButton) {
-    <div id="backButton"
-      class="content-row horizontal-align-left sticky"
-      (click)="onClickBackButton()"
-    >
-      <p><img src="back.png" alt="back arrow" height="60" /></p>
-    </div>
-  }
-
-  @if (viewMode === ViewMode.VIEW_MODE_FOLDER) {
-    @for (dirName of folderContents.directories; track dirName) {
-      <div
-        class="content-row list-item"
-        [style.background-color]="getBackgroundColor($even)"
-        (click)="onSelectSubdirectory(dirName)"
-      >
-        <p>{{dirName}}</p>
-      </div>
+  <div id="album" class="album content-row horizontal-align-left ">
+    @if (showBackButton) {
+      <p><img src="back.png" alt="back arrow" height="60" (click)="onClickBackButton()" /></p>
     }
-  }
+    TODO: album name
+  </div>
 
-  @if (viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
-    @for (fileName of folderContents.files; track fileName) {
-      <div
-        class="content-row list-item"
-        [style.background-color]="getBackgroundColor($even)"
-        (click)="onSelectPlayableFile(fileName)"
-      >
-        <p>{{fileName}}</p>
-      </div>
+  <div id="list" class="list">
+    @if (viewMode === ViewMode.VIEW_MODE_FOLDER) {
+      @for (dirName of folderContents.directories; track dirName) {
+        <div
+          class="content-row list-item"
+          [style.background-color]="getBackgroundColor($even)"
+          (click)="onSelectSubdirectory(dirName)"
+        >
+          <p>{{dirName}}</p>
+        </div>
+      }
     }
 
-    <audio controls #audioElement style="width: 100%;"></audio>
-  }
+    @if (viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+      @for (fileName of folderContents.files; track fileName) {
+        <div
+          class="content-row list-item"
+          [style.background-color]="getBackgroundColor($even)"
+          (click)="onSelectPlayableFile(fileName)"
+        >
+          <p>{{fileName}}</p>
+        </div>
+      }
+    }
+  </div>
+
+  <div id="footer" class="footer">
+    @if (viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+      <audio controls #audioElement style="width: 100%;"></audio>
+    }
+  </div>
 </div>
