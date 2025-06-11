@@ -30,6 +30,7 @@
           [id]="getRowId($index)"
           class="content-row list-item"
           [style.background-color]="getBackgroundColor($even)"
+          [style.font-weight]="getFontWeight(fileName)"
           (click)="onSelectPlayableFile(fileName)"
         >
           <p>{{fileName}}</p>

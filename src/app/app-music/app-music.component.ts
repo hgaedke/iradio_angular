@@ -29,8 +29,16 @@ export class MusicComponent {
   albumName: string = '';
 
   private enableAutoStart = false; // used to defer the music autostart until after the next render
-  private enableScrollToFirstRow = false; // used to defer the initial list scrolling until after the next render;
-                                          // this is necessary, because on init the list is still empty
+
+  private selectedDirectoriesStack: string[] = []; // ["bla1",  "bla2",  "bla3"]
+                                                   //  (level0) (level1) (level2)
+  private enterAction: 'FORWARD' | 'BACK' | undefined = undefined; // 'FORWARD': enter subdirectory; 'BACK': leave subdirectory
+  private enterActionDeferred: 'FORWARD' | 'BACK' | undefined = 'FORWARD'; // Defer the enterAction, because we need to wait
+                                                                           // for the data before we can scroll.
+                                                                           // Initially set to 'FORWARD' because initially
+                                                                           // in the top directory we scroll to position 0.
+
+  private currentSongName: string = 'undefined'; // currently played song name
 
   @ViewChild('audioElement') audioElement!: ElementRef; // uses the HTMLAudioElement declared in the HTML template for playback
 
@@ -44,18 +52,25 @@ export class MusicComponent {
     });
 
     afterRender(() => {
-      // Cannot directly scroll to the first row in init, because the list has no entries yet
-      // at that time.
-      if (this.enableScrollToFirstRow) {
-        this.enableScrollToFirstRow = false;
-        this.updateScrollPosition(0);
-      }
-
       // Cannot directly call onSelectPlayableFile from updateViewMode, because the element reference
       // to the audio element is not yet ready at that time.
       if (this.enableAutoStart) {
         this.enableAutoStart = false;
         this.onSelectPlayableFile(this.folderContents.files[0]);
+      }
+
+      if (this.enterAction) {
+        // Defer the enterAction, because we need to wait for the data before we can scroll.
+        // This here is executed only after the data is available.
+        if (this.enterAction === 'FORWARD') {
+          this.updateScrollPosition(0);
+        } else if (this.enterAction === 'BACK') {
+          const selectedRowName = this.selectedDirectoriesStack.pop();
+          if (selectedRowName) {
+            this.updateScrollPosition(this.getIndex(selectedRowName, this.folderContents.directories));
+          }
+        }
+        this.enterAction = undefined;
       }
     });
   }
@@ -110,10 +125,12 @@ export class MusicComponent {
       this.enableAutoStart = true;
     }
 
-    // after view mode update (i.e. entering the page), scroll to the first entry in the list
     if (this.folderContents.files.length > 0 || this.folderContents.directories.length > 0) {
-      // Same defer approach as above.
-      this.enableScrollToFirstRow = true;
+      // Data is available now => execute the deferred action.
+      if (this.enterActionDeferred) {
+        this.enterAction = this.enterActionDeferred;
+        this.enterActionDeferred = undefined;
+      }
     }
   }
 
@@ -200,6 +217,9 @@ export class MusicComponent {
    */
   onSelectSubdirectory(subdir: string) {
     this.relativeDirectory.set(this.relativeDirectory() + '/' + subdir);
+
+    this.enterAction = 'FORWARD';
+    this.selectedDirectoriesStack.push(subdir);
   }
 
   /**
@@ -223,6 +243,8 @@ export class MusicComponent {
 
     this.updateScrollPosition(this.getIndex(fileName, this.folderContents.files));
 
+    this.currentSongName = fileName;
+
     this.destroyRef.onDestroy(() => {
       this.stopPlayback();
     });
@@ -235,6 +257,14 @@ export class MusicComponent {
    */
   getIndex(containedElement: string, container: string[]) {
     return container.findIndex((elem) => elem === containedElement);
+  }
+
+  getFontWeight(fileName: string) {
+    if (fileName === this.currentSongName) {
+      return 'bold';
+    } else {
+      return 'normal';
+    }
   }
 
   /**
@@ -250,5 +280,6 @@ export class MusicComponent {
     this.stopPlayback();
 
     this.relativeDirectory.set(this.relativeDirectory().substring(0, indexSlash));
+    this.enterActionDeferred = 'BACK';
   }
 }
