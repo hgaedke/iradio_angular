@@ -1,6 +1,9 @@
-import { afterRender, Component, computed, DestroyRef, effect, ElementRef, inject, Input, signal, ViewChild } from '@angular/core';
+import { afterRender, ChangeDetectorRef, Component, computed, DestroyRef, effect, ElementRef, inject, Input, signal, ViewChild } from '@angular/core';
 import { FolderContents, ViewMode } from './app-music.model';
 import { MediaServerAccessService } from './app-music.media-server-access.service';
+
+// Workaround: found no other possibility to access the musicComponent inside playNextFile().
+let musicComponent: MusicComponent | undefined = undefined;
 
 @Component({
   selector: 'app-music',
@@ -18,6 +21,8 @@ export class MusicComponent {
 
   private mediaServerAccessService = inject(MediaServerAccessService);
   private destroyRef = inject(DestroyRef);
+  private changeDetectorRef = inject(ChangeDetectorRef); // Workaround: needed for manual re-render after altering
+                                                         // currentSongName in onSelectPlayableFile()
 
   private relativeDirectory = signal<string>('.'); // change of relativeDirectory triggers updates of remaining properties once HTTP request is done
   folderContents: FolderContents = {
@@ -46,6 +51,8 @@ export class MusicComponent {
    * Makes sure that the page is updated when the HTTP request for folderContents is complete.
    */
   constructor() {
+    musicComponent = this;
+
     effect(() => {
       // (Done like this and not via computed(), because asynchronous HTTP request is involved.)
       this.readAndProcessFolderContents();
@@ -72,6 +79,10 @@ export class MusicComponent {
         }
         this.enterAction = undefined;
       }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.stopPlayback();
     });
   }
 
@@ -227,6 +238,7 @@ export class MusicComponent {
    */
   stopPlayback() {
     this.audioElement?.nativeElement.pause(); // ? in case this function was called in folder view mode
+    this.audioElement?.nativeElement.removeEventListener('ended', this.playNextFile);
   }
 
   /**
@@ -244,10 +256,23 @@ export class MusicComponent {
     this.updateScrollPosition(this.getIndex(fileName, this.folderContents.files));
 
     this.currentSongName = fileName;
+    // Need to trigger rendering manually, because a change of currentSongName does not
+    // always automatically trigger re-render :-(
+    this.changeDetectorRef.detectChanges();
 
-    this.destroyRef.onDestroy(() => {
-      this.stopPlayback();
-    });
+    // make sure that the next song is played once the current song ends
+    this.audioElement?.nativeElement.addEventListener('ended', this.playNextFile);
+  }
+
+  /**
+   * Executed if a file has been played until its end.
+   * Starts playing the next file in the list.
+   */
+  playNextFile() {
+    const indexOfCurrentSong = musicComponent!.getIndex(musicComponent!.currentSongName, musicComponent!.folderContents.files);
+    const indexOfNextSong = (indexOfCurrentSong + 1) % musicComponent!.folderContents.files.length;
+    const nextSong = musicComponent!.folderContents.files[indexOfNextSong];
+    musicComponent!.onSelectPlayableFile(nextSong);
   }
 
   /**
@@ -259,10 +284,16 @@ export class MusicComponent {
     return container.findIndex((elem) => elem === containedElement);
   }
 
+  /**
+   * @param fileName 
+   * @returns 'bold' if fileName is the currentSongName; 'normal' otherwise.
+   */
   getFontWeight(fileName: string) {
     if (fileName === this.currentSongName) {
+      console.log('  getFontWeight(' + fileName + ') => bold');
       return 'bold';
     } else {
+      console.log('  getFontWeight(' + fileName + ') => normal');
       return 'normal';
     }
   }
