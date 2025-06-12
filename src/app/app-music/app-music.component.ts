@@ -290,10 +290,8 @@ export class MusicComponent {
    */
   getFontWeight(fileName: string) {
     if (fileName === this.currentSongName) {
-      console.log('  getFontWeight(' + fileName + ') => bold');
       return 'bold';
     } else {
-      console.log('  getFontWeight(' + fileName + ') => normal');
       return 'normal';
     }
   }
