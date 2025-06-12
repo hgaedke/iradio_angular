@@ -74,6 +74,3 @@ In addition to the previous steps:
         `@chromium-browser --start-fullscreen --incognito --autoplay-policy=no-user-gesture-required http://localhost:8080`
 * Restart your Raspberry.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
-
-### Known problems
-* When a song finishes, the next song does not yet start automatically.
