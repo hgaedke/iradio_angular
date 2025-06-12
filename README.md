@@ -2,7 +2,7 @@
 Internet radio website based on Angular2.
 Related project for pure Javascript / HTML: https://github.com/hgaedke/iradio_js .
 
-This readme file contains a how-to for Windows as well as for Rasbian (running on Raspberry PI).
+This readme file contains a how-to for Windows as well as for Rasbian (running on Raspberry Pi).
 
 # How-to for Windows
 ![Screenshot of the internet radio app in Firefox browser on Windows.](/../main/docs/iradio_home_windows.png)
@@ -22,23 +22,23 @@ This readme file contains a how-to for Windows as well as for Rasbian (running o
 * Click one of the radio station buttons and listen to the music.
 * To adjust the radio stations to use and the background colors, edit "c:\iradio_angular\iradio\src\app\shared\app-radio-stations.ts" and rebuild.
 
-## Use the local music playback in addition (feature still in development)
+## Use the local music and video playback in addition
 In addition to the previous steps:
 * Copy MP3 music files of your choice to the music folder, where each music file needs to be located in an album directory, e.g.  
-`c:\iradio_js\music\my_album\my_music.mp3`  
+        `c:\iradio_js\music\my_album\my_music.mp3`  
 You can have multiple files per album and multiple albums as well.
+* Copy video files (.mp4) of your choice to folder  
+        `c:\iradio_js\video`  
 * Start the media server by going to the media_server subdirectory and running  
-        `node app.js "c:/iradio_js/music" videoDir`  
-where "c:/iradio_js/music" is used as global music directory in this example. Just ignore the "videoDir" parameter; it's just a placeholder for future development. However, it must be any non-empty string.
+        `node app.js "c:/iradio_js/music" "c:/iradio_js/video"`  
+where "c:/iradio_js/music" is used as global music directory and "c:/iradio_js/video" is used as global video directory in this example.
 * Open "http://localhost:8080" in your local browser.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
-
-### Known problems
-* No scrolling yet (will come soon).
+* Click on the play button in the left toolbar to show your videos. Use the HTML media controls to start/stop a video. Scroll down to see the other videos.
 
 
 # How-to for Rasbian
-This assumes that you have a Raspberry PI with Rasbian OS and a touch screen attached, and that you use username "pi".
+This assumes that you have a Raspberry Pi with Rasbian OS and a touch screen attached, and that you use username "pi".
 
 ## Install, run
 * Make sure you have NodeJS >= v18 and npm installed.
@@ -63,9 +63,10 @@ This assumes that you have a Raspberry PI with Rasbian OS and a touch screen att
         `@http-server /home/pi/Desktop/iradio_angular`  
         `@chromium-browser --start-fullscreen --incognito --autoplay-policy=no-user-gesture-required http://localhost:8080`  
 
-## Install and use the local music playback in addition
+## Install and use the local music and video playback in addition
 In addition to the previous steps:
 * Copy MP3 music files of your choice to folder "/music", where each music file needs to be located in an album directory, e.g. "/music/my_album/my_music.mp3". You can have multiple files per album and multiple albums as well.
+* Copy video files (.mp4) of your choice to folder "/video".
 * Have the MediaServer started automatically on login by adding this line to "/etc/xdg/lxsession/LXDE-pi/autostart":  
         `@node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video`
     * The full iradio-related content of "/etc/xdg/lxsession/LXDE-pi/autostart" then is:  
@@ -74,3 +75,4 @@ In addition to the previous steps:
         `@chromium-browser --start-fullscreen --incognito --autoplay-policy=no-user-gesture-required http://localhost:8080`
 * Restart your Raspberry.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
+* Click on the play button in the left toolbar to show your videos. Use the HTML media controls to start/stop a video. Scroll down to see the other videos.

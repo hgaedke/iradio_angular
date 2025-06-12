@@ -1,4 +1,4 @@
-export type FolderContents = {
+export type MusicFolderContents = {
     directories: string[],
     files: string[],
 };

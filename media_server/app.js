@@ -45,13 +45,13 @@ app.use(bodyParser.json());
  */
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // allow all domains
-  //res.setHeader("Access-Control-Allow-Methods", "GET, PUT, DELETE");
   res.setHeader("Access-Control-Allow-Methods", "GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   next();
 });
 
+// ======================== Music ========================
 
 /**
  * /music/showFolder
@@ -119,24 +119,84 @@ app.get("/music/stream", (req, res) => {
   const absoluteFilePath = musicDir + '/' + req.query.relativeFilePath;
   res.sendFile(absoluteFilePath, (err) => {
     if (err) {
-      console.log('Problem sending file ' + absoluteFilePath + ': ' + err);
+      //console.log('Problem sending file ' + absoluteFilePath + ': ' + err);
       res.status(500).send('Problem sending file ' + req.query.relativeFilePath + ': ' + err);
       return;
     } else {
-      console.log('File sent successfully: ' + absoluteFilePath);
-
-      // ERR_HTTP_HEADERS_SENT happens on sending status 200 when pressing the back button while a playback is running;
-      // no idea why :-(   => However, catching that error here helps.
-      try {
-        res.status(200).send();
-      } catch (e) {
-        console.log('Error sending status 200: ' + e);
-      }
+      //console.log('File sent successfully: ' + absoluteFilePath);
       return;
     }
   });
 });
 
+// ======================== Video ========================
+
+/**
+ * /video/showFolder
+ * 
+ * @return The names of the files contained in the global video directory, in JSON,
+ *         in the form
+ *           {
+ *             files: ['file1', ...]
+ *           }
+ * 
+ * Example:
+ *   http://localhost:3000/video/showFolder
+ */ 
+app.get("/video/showFolder", (req, res) => {
+  // extract files
+  let files = [];
+  fs.readdirSync(videoDir).forEach(entry => {
+    if (fs.lstatSync(videoDir + '/' + entry).isDirectory()) {
+      ; // skip directories
+    }
+    if (fs.lstatSync(videoDir + '/' + entry).isFile()) {
+      files.push(entry);
+    }
+  });
+
+  res.status(200).json({
+    files: files,
+  });
+  return;
+});
+
+
+/**
+ * /video/stream
+ * 
+ * @param relativeFilePath Relative file path (relative to the local video directory)
+ *                         to a local video file.
+ * @return That file.
+ * 
+ * Example:
+ *   http://localhost:3000/video/stream?relativeFilePath=80er\Piano%20Band\Piano.mp4
+ */
+app.get("/video/stream", (req, res) => {
+  if (!req.query.relativeFilePath) {
+    res.status(500).send('relativeFilePath argument missing!');
+    return;
+  }
+
+  // do not allow ".." substrings, so that files from other places cannot be accessed
+  if (req.query.relativeFilePath.includes('..')) {
+    res.status(500).send('relativeFilePath is invalid!');
+    return;
+  }
+
+  const absoluteFilePath = videoDir + '/' + req.query.relativeFilePath;
+  res.sendFile(absoluteFilePath, (err) => {
+    if (err) {
+      //console.log('Problem sending file ' + absoluteFilePath + ': ' + err);
+      return;
+    } else {
+      //console.log('File sent successfully: ' + absoluteFilePath);
+      return;
+    }
+  });
+});
+
+// ======================== Generic ========================
 
 /**
  * Fallback to error 404 for remaining requests.

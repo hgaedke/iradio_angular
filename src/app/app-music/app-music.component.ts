@@ -1,6 +1,6 @@
 import { afterRender, ChangeDetectorRef, Component, computed, DestroyRef, effect, ElementRef, inject, Input, signal, ViewChild } from '@angular/core';
-import { FolderContents, ViewMode } from './app-music.model';
-import { MediaServerAccessService } from './app-music.media-server-access.service';
+import { MusicFolderContents, ViewMode } from './app-music.model';
+import { MediaServerAccessService } from '../shared/app-music.media-server-access.service';
 
 // Workaround: found no other possibility to access the musicComponent inside playNextFile().
 let musicComponent: MusicComponent | undefined = undefined;
@@ -25,7 +25,7 @@ export class MusicComponent {
                                                          // currentSongName in onSelectPlayableFile()
 
   private relativeDirectory = signal<string>('.'); // change of relativeDirectory triggers updates of remaining properties once HTTP request is done
-  folderContents: FolderContents = {
+  folderContents: MusicFolderContents = {
     directories: [],
     files: [],
   };
@@ -91,7 +91,7 @@ export class MusicComponent {
    * Then, sets the viewMode depending on the results.
    */
   readAndProcessFolderContents() {
-    const subscription = this.mediaServerAccessService.getFolderContents(this.relativeDirectory())
+    const subscription = this.mediaServerAccessService.getMusicFolderContents(this.relativeDirectory())
     .subscribe((folderContents) => {
       this.folderContents = {
         directories : folderContents.directories,
@@ -113,7 +113,7 @@ export class MusicComponent {
    *          If there is at least 1 directory, view mode is VIEW_MODE_FOLDER,
    *          VIEW_MODE_PLAYBACK otherwise.
    */
-  computeViewMode(folderContents: FolderContents): ViewMode {
+  computeViewMode(folderContents: MusicFolderContents): ViewMode {
     if (folderContents.directories.length > 0) {
       return ViewMode.VIEW_MODE_FOLDER;
     } else {
@@ -249,7 +249,7 @@ export class MusicComponent {
   onSelectPlayableFile(fileName: string) {
     this.stopPlayback();
     
-    this.audioElement.nativeElement.src = this.mediaServerAccessService.getFileStreamURL(this.relativeDirectory() + '/' + fileName);
+    this.audioElement.nativeElement.src = this.mediaServerAccessService.getMusicFileStreamURL(this.relativeDirectory() + '/' + fileName);
     this.audioElement.nativeElement.load();
     this.audioElement.nativeElement.play();
 

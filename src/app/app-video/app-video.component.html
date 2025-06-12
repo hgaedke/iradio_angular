@@ -1,0 +1,13 @@
+<div id="container" class="container">
+  <div id="header" class="header content">{{title}}</div>>
+  <div id="list" class="list content">
+    @for (fileName of folderContents.files; track fileName) {
+      <p>
+        <video width="100%" controls>
+          <source [src]="getVideoFileStreamURL(fileName)" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </p>
+    }
+  </div>
+</div>
