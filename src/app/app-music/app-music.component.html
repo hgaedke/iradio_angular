@@ -1,14 +1,21 @@
-<div id="container" class="container">
+<div
+  id="container"
+  class="container"
+  [style.grid-template-areas]="getContainerGridTemplateAreas()"
+  [style.grid-template-rows]="getContainerGridTemplateRows()"
+>
   <div id="header" class="header content-row">{{title}}</div>
 
-  <div id="albumWithBackButton" class="album-with-back-button">
-    <div id="backButton" class="back-button">
-      @if (showBackButton) {
-        <img src="back.png" alt="back arrow" height="60" (click)="onClickBackButton()" />
-      }
+  @if (albumName !== '') {
+    <div id="albumWithBackButton" class="album-with-back-button">
+      <div id="backButton" class="back-button">
+        @if (showBackButton) {
+          <img src="back.png" alt="back arrow" height="60" (click)="onClickBackButton()" />
+        }
+      </div>
+      <div id="album" class="album">{{albumName}}</div>
     </div>
-    <div id="album" class="album">{{albumName}}</div>
-  </div>
+  }
 
   <div id="list" class="list">
     @if (viewMode === ViewMode.VIEW_MODE_FOLDER) {

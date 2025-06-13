@@ -4,12 +4,12 @@
 
 .container {
   display: grid;
-  grid-template-areas: "header"
+  /*grid-template-areas: "header"
                        "album"
                        "list"
-                       "footer";
+                       "footer";*/ /*set dynamically, depends on album name*/
   grid-template-columns: 1fr;
-  grid-template-rows: 3.5em 3.5em auto 3.5em;
+  /*grid-template-rows: 3.5em 3.5em auto 3.5em;*/ /*set dynamically, depends on album name*/
   gap: 5px;
   background-color: black;
   height: 100vh;
@@ -26,6 +26,7 @@
 .list-item {
   color: black;
   text-align: center;
+  height: 2em;
 }
 
 .header {
@@ -43,7 +44,10 @@
 }
 
 .back-button {
-  grid-area: back-button;  
+  grid-area: back-button;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .album {
@@ -51,6 +55,9 @@
   color: white;
   font-size: 200%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .list {

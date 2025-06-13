@@ -4,7 +4,6 @@ import { VideoFolderContents } from './app-video.model';
 
 @Component({
   selector: 'app-video',
-  imports: [],
   templateUrl: './app-video.component.html',
   styleUrl: './app-video.component.css'
 })
@@ -27,6 +26,9 @@ export class VideoComponent implements OnInit {
         this.folderContents = {
           files: folderContents.files,
         };
+        // sort the files in reverse order, so that the newest file will be presented first
+        this.folderContents.files.sort();
+        this.folderContents.files.reverse();
       });
 
       this.destroyRef.onDestroy(() => {

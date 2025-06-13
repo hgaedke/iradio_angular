@@ -311,4 +311,20 @@ export class MusicComponent {
     this.relativeDirectory.set(this.relativeDirectory().substring(0, indexSlash));
     this.enterActionDeferred = 'BACK';
   }
+
+  getContainerGridTemplateAreas() {
+    if (this.albumName === '') {
+      return '"header" "list" "footer"';
+    } else {
+      return '"header" "album" "list" "footer"';
+    }
+  }
+
+  getContainerGridTemplateRows() {
+    if (this.albumName === '') {
+      return '3.5em auto 3.5em';
+    } else {
+      return '3.5em 3.5em auto 3.5em';
+    }
+  }
 }
