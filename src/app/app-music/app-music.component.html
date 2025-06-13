@@ -46,9 +46,9 @@
     }
   </div>
 
-  <div id="footer" class="footer">
-    @if (viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
-      <audio controls #audioElement style="width: 100%;"></audio>
-    }
-  </div>
+  @if (viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+    <div id="footer" class="footer">
+        <audio controls #audioElement style="width: 100%;"></audio>
+    </div>
+  }
 </div>

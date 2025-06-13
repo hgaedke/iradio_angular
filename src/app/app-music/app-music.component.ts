@@ -312,19 +312,35 @@ export class MusicComponent {
     this.enterActionDeferred = 'BACK';
   }
 
+  /**
+   * @returns The grid template areas for the main container, possibly omitting the album and footer rows.
+   */
   getContainerGridTemplateAreas() {
     if (this.albumName === '') {
+      // root directory shown => bo album, no playback
       return '"header" "list" "footer"';
     } else {
-      return '"header" "album" "list" "footer"';
+      if (this.viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+        return '"header" "album" "list" "footer"'; // display all
+      } else {
+        return '"header" "album" "list"'; // omit footer in folder view mode
+      }
     }
   }
 
+  /**
+   * @returns The grid template rows for the main container, possibly omitting the album and footer rows.
+   */
   getContainerGridTemplateRows() {
     if (this.albumName === '') {
-      return '3.5em auto 3.5em';
+      // root directory shown => no album, no playback
+      return '3.5em auto';
     } else {
-      return '3.5em 3.5em auto 3.5em';
+      if (this.viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+        return '3.5em 3.5em auto 3.5em'; // display all
+      } else {
+        return '3.5em 3.5em auto'; // omit footer in folder view mode
+      }
     }
   }
 }
