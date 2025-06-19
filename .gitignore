@@ -46,4 +46,4 @@ Thumbs.db
 /media_server/node_modules
 
 # notifications_server
-/notifications_server/node_modules
+#/notifications_server/node_modules
