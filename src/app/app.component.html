@@ -8,6 +8,7 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <main class="main">
+  <app-notifications />
   <div class="container">
     <app-menu class="menu" (activeApp)="updateActiveApp($event)" />
     @if (activeApp === 'radio1') {

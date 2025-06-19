@@ -7,10 +7,11 @@ import { RADIO_STATIONS1, RADIO_STATIONS2 } from './shared/app-radio-stations.mo
 import { RadioStation } from './shared/app-radio.model';
 import { MusicComponent } from './app-music/app-music.component';
 import { VideoComponent } from "./app-video/app-video.component";
+import { NotificationsComponent } from "./app-notifications/app-notifications.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenuComponent, RadioComponent, MusicComponent, VideoComponent],
+  imports: [RouterOutlet, MenuComponent, RadioComponent, MusicComponent, VideoComponent, NotificationsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

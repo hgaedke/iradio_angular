@@ -1,0 +1,28 @@
+* {
+    font-family: Arial;
+}
+
+p {
+    font-size: 200%;
+    text-align: center;
+}
+
+dialog {
+    min-width: 30rem;
+    padding: 0;
+    z-index: 2;
+    background: #d5c7bc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+}
+
+dialog::backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+}
