@@ -22,8 +22,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private messagesSubscription!: Subscription;
 
   ngOnInit() {
-    this.messagesSubscription = this.webSocketService.getMessages().subscribe(
-      (jsonMessage) => {
+    this.messagesSubscription = this.webSocketService.getMessages().subscribe({
+      next: (jsonMessage) => {
         console.log('Received message:', jsonMessage);
         const textMessage = jsonMessage.message;
 
@@ -35,10 +35,11 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
         this.showNotification(textMessage, timeMS);
       },
-      (err) => console.error(err), () => {
+      error: (err) => console.error(err),
+      complete: () => {
         console.log('WebSocket connection closed');
       }
-    );
+    });
   }
 
   ngOnDestroy() {
