@@ -7,13 +7,20 @@ import express from "express";
 const app = express();
 const SERVER_PORT = 3000;
 
+const LOG_PREFIX = '[MEDIA_SERVER]';
+
 let musicDir = '/music';
 let videoDir = '/video';
 
 
+function log(str) {
+    console.log(LOG_PREFIX + ' ' + str);
+}
+
+
 function printSyntax() {
-  console.log('Syntax:');
-  console.log('  node app.js <music dir> <video dir>');
+  log('Syntax:');
+  log('  node app.js <music dir> <video dir>');
 }
 
 
@@ -26,6 +33,7 @@ function checkSyntax() {
   return true;
 }
 
+// =================== App start ===================
 
 // extract music and video directories
 if (!checkSyntax()) {
@@ -39,7 +47,6 @@ console.log('video dir: ' + videoDir);
 // JSON parser
 app.use(bodyParser.json());
 
-
 /**
  * CORS HTTP header adjustments.
  */
@@ -51,8 +58,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// ======================== Music ========================
-
+// ------------------------ Music ------------------------
+   
 /**
  * /music/showFolder
  * 
@@ -68,10 +75,12 @@ app.use((req, res, next) => {
  *   http://localhost:3000/music/showFolder?relativeDirectory=.
  */ 
 app.get("/music/showFolder", (req, res) => {
+  log('Request: /music/showFolder');
   if (!req.query.relativeDirectory) {
     res.status(500).json({ error: 'relativeDirectory argument missing!' });
     return;
   }
+  log('  relativeDirectory: ' + req.query.relativeDirectory);
 
   // extract files from relative directory
   const path = musicDir + '/' + req.query.relativeDirectory;
@@ -105,10 +114,12 @@ app.get("/music/showFolder", (req, res) => {
  *   http://localhost:3000/music/stream?relativeFilePath=80er\Piano%20Band\Piano.mp3
  */
 app.get("/music/stream", (req, res) => {
+  log('Request: /music/stream');
   if (!req.query.relativeFilePath) {
     res.status(500).send('relativeFilePath argument missing!');
     return;
   }
+  log('  relativeFilePath: ' + req.query.relativeFilePath);
 
   // do not allow ".." substrings, so that files from other places cannot be accessed
   if (req.query.relativeFilePath.includes('..')) {
@@ -129,7 +140,7 @@ app.get("/music/stream", (req, res) => {
   });
 });
 
-// ======================== Video ========================
+// ------------------------ Video ------------------------
 
 /**
  * /video/showFolder
@@ -144,6 +155,7 @@ app.get("/music/stream", (req, res) => {
  *   http://localhost:3000/video/showFolder
  */ 
 app.get("/video/showFolder", (req, res) => {
+  log('Request: /video/showFolder');
   // extract files
   let files = [];
   fs.readdirSync(videoDir).forEach(entry => {
@@ -173,10 +185,12 @@ app.get("/video/showFolder", (req, res) => {
  *   http://localhost:3000/video/stream?relativeFilePath=80er\Piano%20Band\Piano.mp4
  */
 app.get("/video/stream", (req, res) => {
+  log('Request: /video/stream');
   if (!req.query.relativeFilePath) {
     res.status(500).send('relativeFilePath argument missing!');
     return;
   }
+  log('  relativeFilePath: ' + req.query.relativeFilePath);
 
   // do not allow ".." substrings, so that files from other places cannot be accessed
   if (req.query.relativeFilePath.includes('..')) {
@@ -196,7 +210,7 @@ app.get("/video/stream", (req, res) => {
   });
 });
 
-// ======================== Generic ========================
+// ------------------------ Generic ------------------------
 
 /**
  * Fallback to error 404 for remaining requests.
@@ -211,3 +225,4 @@ app.use((req, res, next) => {
 
 // start HTTP server
 app.listen(SERVER_PORT);
+log('Listening at port ' + SERVER_PORT);

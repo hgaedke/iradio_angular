@@ -1,5 +1,6 @@
 import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { retry, RetryConfig, Subscription } from 'rxjs';
+
 import { WebSocketService } from './websocket-service';
 
 @Component({
@@ -20,24 +21,37 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   private webSocketService = inject(WebSocketService);
   private messagesSubscription!: Subscription;
+  private RETRY_CONFIG: RetryConfig = {
+    delay: 3000,
+  };
+
+  private LOG_PREFIX: string = '[NOTIFICATION_SERVER] ';
 
   ngOnInit() {
-    this.messagesSubscription = this.webSocketService.getMessages().subscribe({
+    this.messagesSubscription = this.webSocketService.getMessages().pipe(
+      retry(this.RETRY_CONFIG)
+    ).subscribe({
       next: (jsonMessage) => {
-        console.log('Received message:', jsonMessage);
-        const textMessage = jsonMessage.message;
+        try {
+          console.log(this.LOG_PREFIX + 'Received message:', jsonMessage);
+          const textMessage = jsonMessage.message;
 
-        // calculate display time for the text
-        const timeMS: number = Math.max(
-          (textMessage.length / this.HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND) * 1000,
-          this.MIN_TIMEOUT_MS
-        );
+          // calculate display time for the text
+          const timeMS: number = Math.max(
+            (textMessage.length / this.HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND) * 1000,
+            this.MIN_TIMEOUT_MS
+          );
 
-        this.showNotification(textMessage, timeMS);
+          this.showNotification(textMessage, timeMS);
+        } catch (e) {
+          console.error(this.LOG_PREFIX + 'Error processing next value: ' + e);
+        }
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error(this.LOG_PREFIX + 'Error in communication: ' + err);
+      },
       complete: () => {
-        console.log('WebSocket connection closed');
+        console.log(this.LOG_PREFIX + 'WebSocket connection closed.');
       }
     });
   }

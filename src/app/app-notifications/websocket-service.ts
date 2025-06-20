@@ -2,22 +2,28 @@ import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Observable } from 'rxjs';
 
+/**
+ * Opens a WebSocket to notification_server to receive messages
+ * from it.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
-  private socket$: WebSocketSubject<any>;
+  private SERVER_URL: string = 'localhost';
   private PORT: number = 8082;
 
+  private webSocket$: WebSocketSubject<any>;
+
   constructor() {
-    this.socket$ = webSocket('ws://localhost:' + this.PORT);
+    this.webSocket$ = webSocket('ws://' + this.SERVER_URL + ':' + this.PORT);
   }
 
   getMessages(): Observable<any> {
-    return this.socket$.asObservable();
+    return this.webSocket$.asObservable();
   }
 
   close() {
-    this.socket$.complete();
+    this.webSocket$.complete();
   }
 }

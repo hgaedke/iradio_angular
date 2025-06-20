@@ -6,11 +6,14 @@ import { HttpClient } from "@angular/common/http";
     providedIn: 'root',
 })
 export class MediaServerAccessService {
+    private MEDIA_BASE_URL: string = 'localhost';
+    private MEDIA_PORT: number = 3000;
+    private MUSIC_SHOW_FOLDER_URL = 'http://' + this.MEDIA_BASE_URL + ':' + this.MEDIA_PORT + '/music/showFolder';
+    private MUSIC_STREAM_FILE_URL = 'http://' + this.MEDIA_BASE_URL + ':' + this.MEDIA_PORT + '/music/stream';
+    private VIDEO_SHOW_FOLDER_URL = 'http://' + this.MEDIA_BASE_URL + ':' + this.MEDIA_PORT + '/video/showFolder';
+    private VIDEO_STREAM_FILE_URL = 'http://' + this.MEDIA_BASE_URL + ':' + this.MEDIA_PORT + '/video/stream';
+
     private httpClient = inject(HttpClient);
-    private MUSIC_SHOW_FOLDER_URL = 'http://localhost:3000/music/showFolder';
-    private MUSIC_STREAM_FILE_URL = 'http://localhost:3000/music/stream';
-    private VIDEO_SHOW_FOLDER_URL = 'http://localhost:3000/video/showFolder';
-    private VIDEO_STREAM_FILE_URL = 'http://localhost:3000/video/stream';
 
     /**
      * @param relativeDirectory Directory relative to the global music directory.
