@@ -1,9 +1,10 @@
 /**
- * This app reads pure text messages via an input websocket and forwards that text in JSON format
- * to an outgoing websocket. It is used here to pump messages into the parent Angular app.
+ * This app reads pure text messages as well as JSON-formatted commands via an input
+ * websocket and forwards the text / commands in JSON format to an outgoing websocket.
+ * It is used here to pump messages into the parent Angular app.
  * 
  * 
- *                        Notification server (this Javascript app)
+ *                          Command server (this Javascript app)
  *                        ^                                      |
  *                        | (server, port 8081)                  | (server, port 8082)
  *                        |                                      |

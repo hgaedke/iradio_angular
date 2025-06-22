@@ -3,26 +3,80 @@ import fs from "node:fs";
 import bodyParser from "body-parser";
 import express from "express";
 
+// =================== Working directory ===================
 
-const app = express();
-const SERVER_PORT = 3000;
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 
-const LOG_PREFIX = '[MEDIA_SERVER]';
+let appDir = undefined;
 
-let musicDir = '/music';
-let videoDir = '/video';
-
-
-function log(str) {
-    console.log(LOG_PREFIX + ' ' + str);
+function initAppDir() {
+  appDir = __filename.replaceAll('\\', '/');
+  //console.log('appDir: ' + appDir);
+  const lastSlash = appDir.lastIndexOf('/');
+  appDir = appDir.substring(0, lastSlash);
+  //console.log('appDir: ' + appDir);
 }
 
+initAppDir();
+
+// =================== Logging ===================
+
+const LOG_PREFIX = '[MEDIA_SERVER]';
+const LOG_FILE_BASE_NAME = 'mediaServer.log'; // stored in directory of this app; overwritten with 10 files roundtrip
+const LOG_FILE_NUMBER_FILENAME = 'mediaServer.log.number';
+let logFilename = undefined;
+
+/**
+ * @param strNumber 
+ * @returns strNumber + 1
+ */
+function stringIncrement(strNumber) {
+  const number = parseInt(strNumber, 10);
+  return String((number + 1) % 10);
+}
+
+/**
+ * Set logFile, based on LOG_FILENAME and LOG_FILE_NUMBER_FILENAME.
+ */
+function initLogFilename() {
+  // get log file number
+  let oldLogFileNumber = undefined;
+  try {
+    oldLogFileNumber = fs.readFileSync(appDir + '/' + LOG_FILE_NUMBER_FILENAME, 'utf8');
+  } catch (err) {
+    oldLogFileNumber = '9'; // subsequentially inits logFileNumber to '0'
+  }
+  //console.log('oldLogFileNumber: ' + oldLogFileNumber);
+  const logFileNumber = stringIncrement(oldLogFileNumber);
+  fs.writeFileSync(appDir + '/' + LOG_FILE_NUMBER_FILENAME, logFileNumber); // save for next run
+
+  // set logFile
+  logFilename = appDir + '/' + LOG_FILE_BASE_NAME + '.' + logFileNumber;
+  //console.log('logFilename: ' + logFilename);
+}
+
+initLogFilename();
+
+/**
+ * Appends str to logFile and wites it to the console.
+ * 
+ * @param str 
+ */
+function log(str) {
+    const logstr = LOG_PREFIX + ' ' + str;
+    console.log(logstr);
+    if (logFilename !== undefined) {
+      fs.writeFileSync(logFilename, logstr + '\n', {flag: 'a'});
+    }
+}
+
+// =================== Syntax ===================
 
 function printSyntax() {
   log('Syntax:');
   log('  node app.js <music dir> <video dir>');
 }
-
 
 function checkSyntax() {
   if (process.argv.length != 4) {
@@ -35,14 +89,20 @@ function checkSyntax() {
 
 // =================== App start ===================
 
+const app = express();
+const SERVER_PORT = 3000;
+
+let musicDir = '/music';
+let videoDir = '/video';
+
 // extract music and video directories
 if (!checkSyntax()) {
   process.exit(1);
 }
 musicDir = process.argv[2];
 videoDir = process.argv[3];
-console.log('music dir: ' + musicDir);
-console.log('video dir: ' + videoDir);
+log('music dir: ' + musicDir);
+log('video dir: ' + videoDir);
 
 // JSON parser
 app.use(bodyParser.json());
