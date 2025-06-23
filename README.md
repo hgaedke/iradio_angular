@@ -29,7 +29,7 @@ In addition to the previous steps:
 You can have multiple files per album and multiple albums as well.
 * Copy video files (.mp4) of your choice to folder  
         `c:\iradio_js\video`  
-* Start the media server by going to the media_server subdirectory and running  
+* Start the media server by going to the servers/media_server subdirectory and running  
         `node app.js "c:/iradio_js/music" "c:/iradio_js/video"`  
 where "c:/iradio_js/music" is used as global music directory and "c:/iradio_js/video" is used as global video directory in this example.
 * Open "http://localhost:8080" in your local browser.
@@ -68,9 +68,9 @@ In addition to the previous steps:
 * Copy MP3 music files of your choice to folder "/music", where each music file needs to be located in an album directory, e.g. "/music/my_album/my_music.mp3". You can have multiple files per album and multiple albums as well.
 * Copy video files (.mp4) of your choice to folder "/video".
 * Have the MediaServer started automatically on login by adding this line to "/etc/xdg/lxsession/LXDE-pi/autostart":  
-        `@node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video`
+        `@node /home/pi/Desktop/iradio_angular/servers/media_server/app.js /music /video`
     * The full iradio-related content of "/etc/xdg/lxsession/LXDE-pi/autostart" then is:  
-        `@node /home/pi/Desktop/iradio_angular/media_server/app.js /music /video`  
+        `@node /home/pi/Desktop/iradio_angular/server/media_server/app.js /music /video`  
         `@http-server /home/pi/Desktop/iradio_angular`  
         `@chromium-browser --start-fullscreen --incognito --autoplay-policy=no-user-gesture-required http://localhost:8080`
 * Restart your Raspberry.

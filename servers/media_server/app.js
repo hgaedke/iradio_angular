@@ -2,10 +2,10 @@ import fs from "node:fs";
 
 import bodyParser from "body-parser";
 import express from "express";
+import { fileURLToPath } from "url";
 
 // =================== Working directory ===================
 
-import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 
 let appDir = undefined;
