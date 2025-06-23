@@ -3,79 +3,19 @@ import fs from "node:fs";
 import bodyParser from "body-parser";
 import express from "express";
 import { fileURLToPath } from "url";
-
-// =================== Working directory ===================
-
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-
-let appDir = undefined;
-
-function initAppDir() {
-  appDir = __filename.replaceAll('\\', '/');
-  //console.log('appDir: ' + appDir);
-  const lastSlash = appDir.lastIndexOf('/');
-  appDir = appDir.substring(0, lastSlash);
-  //console.log('appDir: ' + appDir);
-}
-
-initAppDir();
+import { RoundTripLogger } from "../shared/server_log/server_log.js";
 
 // =================== Logging ===================
 
 const LOG_PREFIX = '[MEDIA_SERVER]';
-const LOG_FILE_BASE_NAME = 'mediaServer.log'; // stored in directory of this app; overwritten with 10 files roundtrip
-const LOG_FILE_NUMBER_FILENAME = 'mediaServer.log.number';
-let logFilename = undefined;
-
-/**
- * @param strNumber 
- * @returns strNumber + 1
- */
-function stringIncrement(strNumber) {
-  const number = parseInt(strNumber, 10);
-  return String((number + 1) % 10);
-}
-
-/**
- * Set logFile, based on LOG_FILENAME and LOG_FILE_NUMBER_FILENAME.
- */
-function initLogFilename() {
-  // get log file number
-  let oldLogFileNumber = undefined;
-  try {
-    oldLogFileNumber = fs.readFileSync(appDir + '/' + LOG_FILE_NUMBER_FILENAME, 'utf8');
-  } catch (err) {
-    oldLogFileNumber = '9'; // subsequentially inits logFileNumber to '0'
-  }
-  //console.log('oldLogFileNumber: ' + oldLogFileNumber);
-  const logFileNumber = stringIncrement(oldLogFileNumber);
-  fs.writeFileSync(appDir + '/' + LOG_FILE_NUMBER_FILENAME, logFileNumber); // save for next run
-
-  // set logFile
-  logFilename = appDir + '/' + LOG_FILE_BASE_NAME + '.' + logFileNumber;
-  //console.log('logFilename: ' + logFilename);
-}
-
-initLogFilename();
-
-/**
- * Appends str to logFile and wites it to the console.
- * 
- * @param str 
- */
-function log(str) {
-    const logstr = LOG_PREFIX + ' ' + str;
-    console.log(logstr);
-    if (logFilename !== undefined) {
-      fs.writeFileSync(logFilename, logstr + '\n', {flag: 'a'});
-    }
-}
+const LOG_FILE_BASE_NAME = 'mediaServer.log';
+let logger = new RoundTripLogger(fileURLToPath(import.meta.url), LOG_FILE_BASE_NAME, LOG_PREFIX);
 
 // =================== Syntax ===================
 
 function printSyntax() {
-  log('Syntax:');
-  log('  node app.js <music dir> <video dir>');
+  logger.log('Syntax:');
+  logger.log('  node app.js <music dir> <video dir>');
 }
 
 function checkSyntax() {
@@ -101,8 +41,8 @@ if (!checkSyntax()) {
 }
 musicDir = process.argv[2];
 videoDir = process.argv[3];
-log('music dir: ' + musicDir);
-log('video dir: ' + videoDir);
+logger.log('music dir: ' + musicDir);
+logger.log('video dir: ' + videoDir);
 
 // JSON parser
 app.use(bodyParser.json());
@@ -135,12 +75,12 @@ app.use((req, res, next) => {
  *   http://localhost:3000/music/showFolder?relativeDirectory=.
  */ 
 app.get("/music/showFolder", (req, res) => {
-  log('Request: /music/showFolder');
+  logger.log('Request: /music/showFolder');
   if (!req.query.relativeDirectory) {
     res.status(500).json({ error: 'relativeDirectory argument missing!' });
     return;
   }
-  log('  relativeDirectory: ' + req.query.relativeDirectory);
+  logger.log('  relativeDirectory: ' + req.query.relativeDirectory);
 
   // extract files from relative directory
   const path = musicDir + '/' + req.query.relativeDirectory;
@@ -174,12 +114,12 @@ app.get("/music/showFolder", (req, res) => {
  *   http://localhost:3000/music/stream?relativeFilePath=80er\Piano%20Band\Piano.mp3
  */
 app.get("/music/stream", (req, res) => {
-  log('Request: /music/stream');
+  logger.log('Request: /music/stream');
   if (!req.query.relativeFilePath) {
     res.status(500).send('relativeFilePath argument missing!');
     return;
   }
-  log('  relativeFilePath: ' + req.query.relativeFilePath);
+  logger.log('  relativeFilePath: ' + req.query.relativeFilePath);
 
   // do not allow ".." substrings, so that files from other places cannot be accessed
   if (req.query.relativeFilePath.includes('..')) {
@@ -215,7 +155,7 @@ app.get("/music/stream", (req, res) => {
  *   http://localhost:3000/video/showFolder
  */ 
 app.get("/video/showFolder", (req, res) => {
-  log('Request: /video/showFolder');
+  logger.log('Request: /video/showFolder');
   // extract files
   let files = [];
   fs.readdirSync(videoDir).forEach(entry => {
@@ -245,12 +185,12 @@ app.get("/video/showFolder", (req, res) => {
  *   http://localhost:3000/video/stream?relativeFilePath=80er\Piano%20Band\Piano.mp4
  */
 app.get("/video/stream", (req, res) => {
-  log('Request: /video/stream');
+  logger.log('Request: /video/stream');
   if (!req.query.relativeFilePath) {
     res.status(500).send('relativeFilePath argument missing!');
     return;
   }
-  log('  relativeFilePath: ' + req.query.relativeFilePath);
+  logger.log('  relativeFilePath: ' + req.query.relativeFilePath);
 
   // do not allow ".." substrings, so that files from other places cannot be accessed
   if (req.query.relativeFilePath.includes('..')) {
@@ -285,4 +225,4 @@ app.use((req, res, next) => {
 
 // start HTTP server
 app.listen(SERVER_PORT);
-log('Listening at port ' + SERVER_PORT);
+logger.log('Listening at port ' + SERVER_PORT);

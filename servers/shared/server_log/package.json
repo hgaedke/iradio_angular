@@ -1,0 +1,10 @@
+{
+  "name": "server_log",
+  "version": "1.0.0",
+  "description": "Provides simple round-trip file logging.",
+  "main": "server_log.js",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+  }
+}

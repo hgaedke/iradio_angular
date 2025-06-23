@@ -48,3 +48,4 @@ Thumbs.db
 
 # notification_server
 /servers/notification_server/node_modules
+/servers/notification_server/notificationServer.log.*
