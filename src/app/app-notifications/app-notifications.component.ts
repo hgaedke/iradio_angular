@@ -31,18 +31,23 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.messagesSubscription = this.webSocketService.getMessages().pipe(
       retry(this.RETRY_CONFIG)
     ).subscribe({
-      next: (jsonMessage) => {
+      next: (msg) => {
         try {
-          console.log(this.LOG_PREFIX + 'Received message:', jsonMessage);
-          const textMessage = jsonMessage.message;
+          console.log(this.LOG_PREFIX + 'Received message:', msg);
+          const jsonMessage = JSON.parse(msg);
+          // only react to notifications here
+          if (jsonMessage.notification) {
+            const notificationMessage: string = String(jsonMessage.notification);
 
-          // calculate display time for the text
-          const timeMS: number = Math.max(
-            (textMessage.length / this.HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND) * 1000,
-            this.MIN_TIMEOUT_MS
-          );
+            // calculate display time for the text
+            const timeMS: number = Math.max(
+              (notificationMessage.length / this.HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND) * 1000,
+              this.MIN_TIMEOUT_MS
+            );
 
-          this.showNotification(textMessage, timeMS);
+            this.showNotification(notificationMessage, timeMS);
+          }
+
         } catch (e) {
           console.error(this.LOG_PREFIX + 'Error processing next value: ' + e);
         }

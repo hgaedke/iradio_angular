@@ -47,5 +47,5 @@ Thumbs.db
 /servers/media_server/mediaServer.log.*
 
 # notification_server
-/servers/notification_server/node_modules
-/servers/notification_server/notificationServer.log.*
+/servers/command_server/node_modules
+/servers/command_server/commandServer.log.*

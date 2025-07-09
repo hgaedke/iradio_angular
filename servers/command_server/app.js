@@ -1,19 +1,39 @@
 /**
- * This app reads pure text messages as well as JSON-formatted commands via an input
- * websocket and forwards the text / commands in JSON format to an outgoing websocket.
- * It is used here to pump messages into the parent Angular app.
+ * This app is a bridge, forwarding JSON-formatted messages between a
+ * mobile device (e.g. an Android phone) (port 8081) and a web frontend
+ * (e.g. an Angular-based internet radio) (port 8082).
+ * 
+ * It can be used e.g. to send commands from a mobile phone to an
+ * internet radio and to forward potential replies from the internet
+ * radio back to the mobile phone.
+ * 
+ * Example szenario 1, phone sends text message to the internet radio:
+ * 
+ *                                 Command server (this Javascript app)
+ *                               ^                                      |
+ *                               | (server, port 8081)                  | (server, port 8082)
+ *                               |                                      |
+ * (1) {"notification": "Hello"} | websocket                            | websocket (2) {"notification": "Hello"}
+ *                               |                                      |
+ *                               | (client)                             | (client)
+ *                               |                                      v
+ *                         Mobile phone                        Internet radio (Angular web frontend)
  * 
  * 
- *                          Command server (this Javascript app)
- *                        ^                                      |
- *                        | (server, port 8081)                  | (server, port 8082)
- *                        |                                      |
- *           "Hello"      | websocket                            | websocket            {message: "Hello"}
- *                        |                                      |
- *                        | (client)                             | (client)
- *                        |                                      v
- *       Messsage source, e.g. mobile phone                  Message sink: Angular web frontend
+ * Example szenario 2, internet radio sends status to phone:
  * 
+ *                            Command server (this Javascript app)
+ *                          |                                      ^
+ *                          | (server, port 8081)                  | (server, port 8082)
+ *                          |                                      |
+ *                          | websocket                            | websocket  
+ *  (2) {"status":          |                                      |  (1) {"status":
+ *        {"app": "radio1"} |                                      |        {"app": "radio1"}
+ *      }                   |                                      |      }
+ *                          |                                      |
+ *                          | (client)                             | (client)
+ *                          v                                      |
+ *                    Mobile phone                        Internet radio (Angular web frontend)
  * 
  * To start this app, go to this directory and run  
  *         `node app.js`
@@ -25,56 +45,68 @@ import { RoundTripLogger } from "../shared/server_log/server_log.js";
 
 // =================== Logging ===================
 
-const LOG_PREFIX = '[NOTIFICATION_SERVER]';
-const LOG_FILE_BASE_NAME = 'notificationServer.log';
+const LOG_PREFIX = '[COMMAND_SERVER]';
+const LOG_FILE_BASE_NAME = 'commandServer.log';
 let logger = new RoundTripLogger(fileURLToPath(import.meta.url), LOG_FILE_BASE_NAME, LOG_PREFIX);
 
 // =================== App start ===================
 
-const INCOMING_DATA_PORT = 8081; // text input, e.g. from mobile phone
-const OUTGOING_DATA_PORT = 8082; // to web frontend
+const MOBILE_DEVICE_PORT = 8081; // to/from mobile device
+const INTERNET_RADIO_PORT = 8082; // to/from internet radio web frontend
 
-const serverForIncomingData = new WebSocketServer({ 
-  port: INCOMING_DATA_PORT,
+const serverForMobileDevice = new WebSocketServer({ 
+  port: MOBILE_DEVICE_PORT,
 });
-let socketForIncomingData = null;
+let socketForMobileDevice = null;
 
-const serverForOutgoingData = new WebSocketServer({ 
-  port: OUTGOING_DATA_PORT,
+const serverForInternetRadio = new WebSocketServer({ 
+  port: INTERNET_RADIO_PORT,
 });
-let socketForOutgoingData = null;
+let socketForInternetRadio = null;
 
 
 // E.g. mobile phone client connects here:
-serverForIncomingData.on('connection', (server_socket) => {
-    socketForIncomingData = server_socket;
-    logger.log('Client for incoming data connected.');
+serverForMobileDevice.on('connection', (server_socket) => {
+    socketForMobileDevice = server_socket;
+    logger.log('Client for mobile device connected.');
 
-    socketForIncomingData.on('message', (msg) => {
-        logger.log('Incoming data: ' + msg);
+    socketForMobileDevice.on('message', (msg) => {
+        logger.log('From mobile device: ' + msg);
         try {
-            socketForOutgoingData.send(JSON.stringify({
+            /*socketForInternetRadio.send(JSON.stringify({
                 message: String(msg),
-            }));
+            }));*/
+            socketForInternetRadio.send(JSON.stringify(String(msg)));
         } catch (e) {
-            logger.log('Error sending message to outgoing socket: ' + e);
+            logger.log('Error sending message to internet radio socket: ' + e);
         }
     });
 
-    socketForIncomingData.on('close', () => {
-        logger.log('Client for incoming data disconnected.');
+    socketForMobileDevice.on('close', () => {
+        logger.log('Client for mobile device disconnected.');
     });
 });
 
-// Web frontend connects here:
-serverForOutgoingData.on('connection', (server_socket) => {
-    socketForOutgoingData = server_socket;
-    logger.log('Client for outgoing data connected.');
+// Internet radio web frontend connects here:
+serverForInternetRadio.on('connection', (server_socket) => {
+    socketForInternetRadio = server_socket;
+    logger.log('Client for internet radio connected.');
 
-    socketForOutgoingData.on('close', () => {
-        logger.log('Client for outgoing data disconnected.');
+    socketForInternetRadio.on('message', (msg) => {
+        logger.log('From internet radio: ' + msg);
+        try {
+            socketForMobileDevice.send(JSON.stringify({
+                message: String(msg),
+            }));
+        } catch (e) {
+            logger.log('Error sending message to mobile device socket: ' + e);
+        }
+    });
+
+    socketForInternetRadio.on('close', () => {
+        logger.log('Client for internet radio disconnected.');
     });
 });
 
-logger.log('WebSocket server for incoming data (e.g. from mobile phone): ws://localhost:' + INCOMING_DATA_PORT);
-logger.log('WebSocket server for outgoing data (to web frontend): ws://localhost:' + OUTGOING_DATA_PORT);
+logger.log('WebSocket server for mobile device: ws://localhost:' + MOBILE_DEVICE_PORT);
+logger.log('WebSocket server for internet radio: ws://localhost:' + INTERNET_RADIO_PORT);
