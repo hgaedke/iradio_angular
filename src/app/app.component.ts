@@ -8,10 +8,11 @@ import { RadioStation } from './shared/app-radio.model';
 import { MusicComponent } from './app-music/app-music.component';
 import { VideoComponent } from "./app-video/app-video.component";
 import { NotificationsComponent } from "./app-notifications/app-notifications.component";
+import { CommandsComponent } from "./app-commands/app-commands.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenuComponent, RadioComponent, MusicComponent, VideoComponent, NotificationsComponent],
+  imports: [RouterOutlet, MenuComponent, RadioComponent, MusicComponent, VideoComponent, NotificationsComponent, CommandsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

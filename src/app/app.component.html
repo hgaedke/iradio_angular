@@ -8,14 +8,15 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <main class="main">
+  <app-commands />
   <app-notifications />
   <div class="container">
     <app-menu class="menu" (activeApp)="updateActiveApp($event)" />
     @if (activeApp === 'radio1') {
-      <app-radio class="content" [radioStationsInput]="radioStations1" title="App: Internet Radio"/>
+      <app-radio class="content" [radioStationsInput]="radioStations1" title="App: Internet Radio" instance="radio1"/>
     }
     @if (activeApp === 'radio2') {
-      <app-radio class="content" [radioStationsInput]="radioStations2" title="App: Internet Radio 2"/>
+      <app-radio class="content" [radioStationsInput]="radioStations2" title="App: Internet Radio 2" instance="radio2"/>
     }
     @if (activeApp === 'music') {
       <app-music class="content" title="App: Local Music"/>

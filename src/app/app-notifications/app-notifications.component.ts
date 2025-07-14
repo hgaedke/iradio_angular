@@ -1,7 +1,7 @@
 import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { retry, RetryConfig, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
-import { WebSocketService } from './websocket-service';
+import { NotificationService } from '../shared/notification-service';
 
 @Component({
   selector: 'app-notifications',
@@ -19,51 +19,41 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private DEFAULT_TIMEOUT_MS: number = this.MIN_TIMEOUT_MS;
   private HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND = 17; // assumed human read speed
 
-  private webSocketService = inject(WebSocketService);
+  private notificationService = inject(NotificationService);
   private messagesSubscription!: Subscription;
-  private RETRY_CONFIG: RetryConfig = {
-    delay: 3000,
-  };
 
-  private LOG_PREFIX: string = '[NOTIFICATION_SERVER] ';
+  private LOG_PREFIX: string = '[NOTIFICATIONS_COMPONENT] ';
 
   ngOnInit() {
-    this.messagesSubscription = this.webSocketService.getMessages().pipe(
-      retry(this.RETRY_CONFIG)
-    ).subscribe({
+    this.messagesSubscription = this.notificationService.notification$.subscribe({
       next: (msg) => {
         try {
           console.log(this.LOG_PREFIX + 'Received message:', msg);
-          const jsonMessage = JSON.parse(msg);
-          // only react to notifications here
-          if (jsonMessage.notification) {
-            const notificationMessage: string = String(jsonMessage.notification);
+          const notificationMessage: string = String(msg);
 
-            // calculate display time for the text
-            const timeMS: number = Math.max(
-              (notificationMessage.length / this.HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND) * 1000,
-              this.MIN_TIMEOUT_MS
-            );
+          // calculate display time for the text
+          const timeMS: number = Math.max(
+            (notificationMessage.length / this.HUMAN_READ_SPEED_NUMBER_OF_CHARS_PER_SECOND) * 1000,
+            this.MIN_TIMEOUT_MS
+          );
 
-            this.showNotification(notificationMessage, timeMS);
-          }
+          this.showNotification(notificationMessage, timeMS);
 
         } catch (e) {
-          console.error(this.LOG_PREFIX + 'Error processing next value: ' + e);
+          console.error(this.LOG_PREFIX + 'Error processing next value from NotificationService: ' + e);
         }
       },
       error: (err) => {
-        console.error(this.LOG_PREFIX + 'Error in communication: ' + err);
+        console.error(this.LOG_PREFIX + 'Error in communication with NotificationService: ' + err);
       },
       complete: () => {
-        console.log(this.LOG_PREFIX + 'WebSocket connection closed.');
+        console.log(this.LOG_PREFIX + 'NotificationService closed.');
       }
     });
   }
 
   ngOnDestroy() {
     this.messagesSubscription.unsubscribe();
-    this.webSocketService.close();
   }
 
   /**

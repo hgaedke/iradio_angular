@@ -1,6 +1,8 @@
-import { afterRender, ChangeDetectorRef, Component, computed, DestroyRef, effect, ElementRef, inject, Input, signal, ViewChild } from '@angular/core';
+import { afterRender, ChangeDetectorRef, Component, computed, DestroyRef, effect, ElementRef, inject, Input, OnInit, signal, ViewChild } from '@angular/core';
 import { MusicFolderContents, ViewMode } from './app-music.model';
 import { MediaServerAccessService } from '../shared/app-music.media-server-access.service';
+import { MusicControlService } from '../shared/music-control-service';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 // Workaround: found no other possibility to access the musicComponent inside playNextFile().
 let musicComponent: MusicComponent | undefined = undefined;
@@ -11,7 +13,7 @@ let musicComponent: MusicComponent | undefined = undefined;
   templateUrl: './app-music.component.html',
   styleUrl: './app-music.component.css',
 })
-export class MusicComponent {
+export class MusicComponent implements OnInit {
   @Input({required: true}) title!: string;
 
   private FIRST_BACKGROUND_COLOR: string = '#FFC0C0';
@@ -46,6 +48,11 @@ export class MusicComponent {
   private currentSongName: string = 'undefined'; // currently played song name
 
   @ViewChild('audioElement') audioElement!: ElementRef; // uses the HTMLAudioElement declared in the HTML template for playback
+
+  private musicControlService = inject(MusicControlService);
+  private musicControlSubscription! : Subscription;
+
+  private LOG_PREFIX: string = '[MUSIC_COMPONENT] ';
 
   /**
    * Makes sure that the page is updated when the HTTP request for folderContents is complete.
@@ -83,6 +90,36 @@ export class MusicComponent {
 
     this.destroyRef.onDestroy(() => {
       this.stopPlayback();
+    });
+  }
+
+  ngOnInit() {
+    this.musicControlSubscription = this.musicControlService.command$.subscribe({
+      next: (command) => {
+        try {
+          console.log(this.LOG_PREFIX + 'Received message:', command);
+          if (this.viewMode === ViewMode.VIEW_MODE_PLAYBACK) {
+            if (command === 'playNextFile') {
+              this.playNextFile();
+            }
+          } else {
+            console.log(this.LOG_PREFIX + 'Ignoring received message %s, because not in playback mode.', command);
+          }
+
+        } catch (e) {
+          console.error(this.LOG_PREFIX + 'Error processing next value from MusicControlService: ' + e);
+        }
+      },
+      error: (err) => {
+        console.error(this.LOG_PREFIX + 'Error in communication with MusicControlService: ' + err);
+      },
+      complete: () => {
+        console.log(this.LOG_PREFIX + 'MusicControlService closed.');
+      }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.musicControlSubscription.unsubscribe();
     });
   }
 

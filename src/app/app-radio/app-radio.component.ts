@@ -1,6 +1,8 @@
-import { Component, computed, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RadioStation } from '../shared/app-radio.model';
+import { StationSelectService } from '../shared/station-select-service';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 /**
  * Note that most browsers don't initially play the radio station sound,
@@ -16,9 +18,10 @@ import { RadioStation } from '../shared/app-radio.model';
   templateUrl: './app-radio.component.html',
   styleUrl: './app-radio.component.css'
 })
-export class RadioComponent {
+export class RadioComponent implements OnInit{
   @Input({required: true}) radioStationsInput! : RadioStation[];
   @Input({required: true}) title!: string;
+  @Input({required: true}) instance!: 'radio1' | 'radio2';
 
   radioStations? : RadioStation[] = undefined; // It makes no sense here to directly assign radioStationsInput here,
                                               // because that one is still undefined on component creation.
@@ -36,6 +39,31 @@ export class RadioComponent {
   private intervalFunctionId? : ReturnType<typeof setInterval>; // using type NodeJS.Timeout directly doesn't work :-(
   previousTime? : Date = undefined;
   watchdogRestartCounter : number = 0;
+
+  private LOG_PREFIX: string = '[RADIO_COMPONENT] ';
+
+  private stationSelectService: StationSelectService = inject(StationSelectService);
+  private stationSelectSubscription!: Subscription;
+
+  ngOnInit(): void {
+    this.stationSelectSubscription = this.stationSelectService.getSelectedRadio1StationObservable(this.instance).subscribe({
+      next: (station_number) => {
+        try {
+          console.log(this.LOG_PREFIX + 'Received message:', station_number);
+          this.onSelectStationByNumber(station_number);
+
+        } catch (e) {
+          console.error(this.LOG_PREFIX + 'Error processing next value from StationSelectService: ' + e);
+        }
+      },
+      error: (err) => {
+        console.error(this.LOG_PREFIX + 'Error in communication with StationSelectService: ' + err);
+      },
+      complete: () => {
+        console.log(this.LOG_PREFIX + 'StationSelectService closed.');
+      }
+    });
+  }
 
   /**
    * Set up watchdog for automatic station re-init or switch after a number of errors.
@@ -102,6 +130,18 @@ export class RadioComponent {
   }
 
   /**
+   * Starts the playback for the given station (0..5).
+   * 
+   * @param station_number
+   */
+  onSelectStationByNumber(station_number: number) {
+    if (this.radioStations && station_number < this.radioStations.length) {
+      const radioStation: RadioStation = this.radioStations[station_number];
+      this.onSelectStation(radioStation.id);
+    }
+  }
+
+  /**
    * See css file, container.grid-template-areas.
    * 
    * @param i Cell index, starting with 0.
@@ -148,6 +188,8 @@ export class RadioComponent {
 
     //console.log('clearInterval ' + this.intervalFunctionId);
     clearInterval(this.intervalFunctionId);
+
+    this.stationSelectSubscription.unsubscribe();
   }
 
   /**
