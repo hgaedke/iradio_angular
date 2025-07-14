@@ -23,6 +23,10 @@ export class WebSocketService {
     return this.webSocket$.asObservable();
   }
 
+  send(msg: string) {
+    this.webSocket$.next(msg);
+  }
+
   close() {
     this.webSocket$.complete();
   }

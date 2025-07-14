@@ -19,6 +19,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.activeApp.emit('radio1');
+    this.appSelectService.setSelectedApp('radio1');
 
     this.appSelectSubscription = this.appSelectService.selectedApp$.subscribe({
       next: (app) => {
@@ -45,5 +46,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   onSelectApp(app: AllowedApps) {
     this.activeApp.emit(app);
+    this.appSelectService.setSelectedApp(app);
   }
 }

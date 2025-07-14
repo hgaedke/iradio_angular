@@ -127,6 +127,24 @@ export class RadioComponent implements OnInit{
   onSelectStation(stationId: string) {
     this.play(stationId);
     this.watchdogRestartCounter = 0;
+
+    const stationNumber = this.getStationNumber(stationId);
+    if (stationNumber !== undefined) {
+      this.stationSelectService.setSelectedRadioStation(this.instance, stationNumber);
+    }
+  }
+
+  /**
+   * @param stationId 
+   * @returns The associated array index of the station in this.radioStations.
+   */
+  getStationNumber(stationId: string): number | undefined {
+    if (this.radioStations) {
+      const index = this.radioStations.findIndex((radioStation) => radioStation.id === stationId);
+      return index;
+    } else {
+      return undefined;
+    }
   }
 
   /**

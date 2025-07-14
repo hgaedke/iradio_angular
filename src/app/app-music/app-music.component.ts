@@ -165,6 +165,7 @@ export class MusicComponent implements OnInit {
    */
   updateViewMode() {
     this.viewMode = this.computeViewMode(this.folderContents);
+    this.musicControlService.setViewMode(this.viewMode);
 
     // autostart playback on enter playback mode
     if (this.viewMode === ViewMode.VIEW_MODE_PLAYBACK && this.folderContents.files.length > 0) {
@@ -209,6 +210,7 @@ export class MusicComponent implements OnInit {
     } else {
       this.albumName = this.relativeDirectory().substring(indexSlash + 1, this.relativeDirectory().length);
     }
+    this.musicControlService.setAlbumName(this.albumName);
   }
 
   /**
@@ -293,6 +295,7 @@ export class MusicComponent implements OnInit {
     this.updateScrollPosition(this.getIndex(fileName, this.folderContents.files));
 
     this.currentSongName = fileName;
+    this.musicControlService.setCurrentSongName(this.currentSongName);
     // Need to trigger rendering manually, because a change of currentSongName does not
     // always automatically trigger re-render :-(
     this.changeDetectorRef.detectChanges();

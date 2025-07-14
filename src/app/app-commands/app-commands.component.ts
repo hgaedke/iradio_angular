@@ -8,6 +8,7 @@ import { AppSelectService } from '../shared/app-select-service';
 import { StationSelectService } from '../shared/station-select-service';
 import { MusicControlService } from '../shared/music-control-service';
 import { VideoControlService } from '../shared/video-control-service';
+import { AppStatus, MusicStatus, VideoStatus } from '../shared/app-status.model';
 
 /**
  * Supported commands:
@@ -98,10 +99,22 @@ export class CommandsComponent implements OnInit, OnDestroy {
             const command: string = jsonMessage.video;
             this.videoControlService.setCommand(command);
           }
-          else if (jsonMessage.status) {
-            // TODO: collect info and send status message via webSocketService
-            const command: string = jsonMessage.video;
-            this.videoControlService.setCommand(command);
+          else if (jsonMessage.status === 'get') {
+            const app: AllowedApps | undefined = this.appSelectService.getSelectedApp();
+            const radio1_station: number | undefined = this.stationSelectService.getSelectedRadio1Station();
+            const radio2_station: number | undefined = this.stationSelectService.getSelectedRadio2Station();
+            const music: MusicStatus | undefined = this.musicControlService.getStatus();
+            const video: VideoStatus | undefined = this.videoControlService.getStatus();
+            let status: AppStatus = {
+              app,
+              radio1_station,
+              radio2_station,
+              music,
+              video,
+            };
+            const strStatus = JSON.stringify(status);
+            console.log(this.LOG_PREFIX + 'Sending status message:', strStatus);
+            this.webSocketService.send(strStatus);
           }
           else {
             console.log(this.LOG_PREFIX + 'Ignoring unknown message:', msg);

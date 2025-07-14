@@ -73,9 +73,6 @@ serverForMobileDevice.on('connection', (server_socket) => {
     socketForMobileDevice.on('message', (msg) => {
         logger.log('From mobile device: ' + msg);
         try {
-            /*socketForInternetRadio.send(JSON.stringify({
-                message: String(msg),
-            }));*/
             socketForInternetRadio.send(JSON.stringify(String(msg)));
         } catch (e) {
             logger.log('Error sending message to internet radio socket: ' + e);
@@ -95,9 +92,7 @@ serverForInternetRadio.on('connection', (server_socket) => {
     socketForInternetRadio.on('message', (msg) => {
         logger.log('From internet radio: ' + msg);
         try {
-            socketForMobileDevice.send(JSON.stringify({
-                message: String(msg),
-            }));
+            socketForMobileDevice.send(JSON.stringify(String(msg)));
         } catch (e) {
             logger.log('Error sending message to mobile device socket: ' + e);
         }
