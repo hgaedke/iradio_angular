@@ -100,11 +100,17 @@ export class CommandsComponent implements OnInit, OnDestroy {
             this.videoControlService.setCommand(command);
           }
           else if (jsonMessage.status === 'get') {
-            const app: AllowedApps | undefined = this.appSelectService.getSelectedApp();
-            const radio1_station: number | undefined = this.stationSelectService.getSelectedRadio1Station();
-            const radio2_station: number | undefined = this.stationSelectService.getSelectedRadio2Station();
-            const music: MusicStatus | undefined = this.musicControlService.getStatus();
-            const video: VideoStatus | undefined = this.videoControlService.getStatus();
+            // We need to send a full status always, therefore we fall back to some default values here.
+            const app: AllowedApps | undefined = this.appSelectService.getSelectedApp() !== undefined ? this.appSelectService.getSelectedApp() : "radio1";
+            const radio1_station: number | undefined = this.stationSelectService.getSelectedRadio1Station() !== undefined ? this.stationSelectService.getSelectedRadio1Station() : 0;
+            const radio2_station: number | undefined = this.stationSelectService.getSelectedRadio2Station() !== undefined ? this.stationSelectService.getSelectedRadio2Station() : 0;
+            const music: MusicStatus | undefined = this.musicControlService.getStatus() !== undefined ? this.musicControlService.getStatus() : {
+              viewMode: "VIEW_MODE_FOLDER",
+              albumName: "",
+              currentSongName: ""};
+            const video: VideoStatus | undefined = this.videoControlService.getStatus() !== undefined ? this.videoControlService.getStatus() : {
+              dummy: ""
+            };
             let status: AppStatus = {
               app,
               radio1_station,

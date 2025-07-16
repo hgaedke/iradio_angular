@@ -15,4 +15,5 @@ export type MusicStatus = {
 }
 
 export type VideoStatus = {
+  dummy: string | undefined;
 }

@@ -73,9 +73,13 @@ serverForMobileDevice.on('connection', (server_socket) => {
     socketForMobileDevice.on('message', (msg) => {
         logger.log('From mobile device: ' + msg);
         try {
-            socketForInternetRadio.send(JSON.stringify(String(msg)));
+            if (socketForInternetRadio) {
+                socketForInternetRadio.send(JSON.stringify(String(msg)));
+            } else {
+                logger.log('  Cannot forward the message to internet radio, because it is not yet connected.');
+            }
         } catch (e) {
-            logger.log('Error sending message to internet radio socket: ' + e);
+            logger.log('  Error sending message to internet radio socket: ' + e);
         }
     });
 
@@ -84,17 +88,34 @@ serverForMobileDevice.on('connection', (server_socket) => {
     });
 });
 
+function getTrimmedMessage(str) {
+    const strTrimmed = str.substring(1, str.length-1);
+    const strTrimmedAndReplaced = strTrimmed.replaceAll("\\\"", "\"");
+    return strTrimmedAndReplaced;
+}
+
 // Internet radio web frontend connects here:
 serverForInternetRadio.on('connection', (server_socket) => {
     socketForInternetRadio = server_socket;
     logger.log('Client for internet radio connected.');
 
     socketForInternetRadio.on('message', (msg) => {
-        logger.log('From internet radio: ' + msg);
-        try {
-            socketForMobileDevice.send(JSON.stringify(String(msg)));
-        } catch (e) {
-            logger.log('Error sending message to mobile device socket: ' + e);
+        const msgStr = String(msg);
+        logger.log('From internet radio: ' + msgStr);
+        if (msgStr.length < 2) {
+            logger.log('  unsupported message (< 2 chars).');
+        } else {
+            const msgTrimmed = getTrimmedMessage(msgStr);
+            logger.log('  Trimmed message: ' + msgTrimmed);
+            try {
+                if (socketForMobileDevice) {
+                    socketForMobileDevice.send(msgTrimmed);
+                } else {
+                    logger.log('  Cannot forward the message to mobile device, because it is not yet connected.');
+                }
+            } catch (e) {
+                logger.log('  Error sending message to mobile device socket: ' + e);
+            }
         }
     });
 
