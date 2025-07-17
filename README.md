@@ -22,7 +22,7 @@ This readme file contains a how-to for Windows as well as for Rasbian (running o
 * Click one of the radio station buttons and listen to the music.
 * To adjust the radio stations to use and the background colors, edit "c:\iradio_angular\iradio\src\app\shared\app-radio-stations.ts" and rebuild.
 
-## Use the local music and video playback in addition
+## Use the local music and video playback
 In addition to the previous steps:
 * Copy MP3 music files of your choice to the music folder, where each music file needs to be located in an album directory, e.g.  
         `c:\iradio_js\music\my_album\my_music.mp3`  
@@ -35,6 +35,32 @@ where "c:/iradio_js/music" is used as global music directory and "c:/iradio_js/v
 * Open "http://localhost:8080" in your local browser.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
 * Click on the play button in the left toolbar to show your videos. Use the HTML media controls to start/stop a video. Scroll down to see the other videos.
+
+## Use the command server for remote-controlling
+In addition to the previous steps:
+* Start the command server by going to the servers/command_server subdirectory and running  
+        `node app.js`  
+This will establish a small server app which connects to the Angular frontend of the internet radio on port 8082, and to some available mobile device on port 8081. You can then use the mobile device to remote-control the internet radio. Supported commands are: 
+    * `{"notification": "This is a test notification"}` => Shows the given string for some seconds on the internet radio screen.
+    * `{"app": "radio1" | "radio2" | "music" | "video"}` => Switches to the given app.
+    * `{"radio1_station": 0..5}` => Switches the radio station of the radio1 app to the given station number.
+    * `{"radio2_station": 0..5}` => Switches the radio station of the radio2 app to the given station number.
+    * `{"music": "playNextFile"}` => If the music app is active and a file is currently played, switch to the next file.
+    * `{"status": "get"}` => Request the current internet radio status. The internet radio will then send a IRStatus data package.
+* IRStatus packages come in this (self-explaining) format:  
+        `{`  
+        `  "app": "radio1" | "radio2" | "music" | "video",`  
+        `  "radio1_station": 0..5,`  
+        `  "radio2_station": 0..5,`  
+        `  "music": {`  
+        `    "viewMode": "VIEW_MODE_FOLDER" | "VIEW_MODE_PLAYBACK",`  
+        `    "albumName": string,`  
+        `    "currentSongName": string,`  
+        `  },`  
+        `  "video": {`  
+        `    "dummy": string` (not yet implemented)  
+        `  }`  
+        `}`
 
 
 # How-to for Rasbian
@@ -76,3 +102,14 @@ In addition to the previous steps:
 * Restart your Raspberry.
 * Click on the flash button in the left toolbar to show your music albums. Click on an album to enter it and to play the music inside.
 * Click on the play button in the left toolbar to show your videos. Use the HTML media controls to start/stop a video. Scroll down to see the other videos.
+
+## Use the command server for remote-controlling
+See the explanation for Windows above to get informed about the features and communication protocol.
+
+To start the command_server on Rasbian, call  
+        `node /home/pi/Desktop/iradio_angular/command_server/app.js`
+
+Don't forget to copy the servers/shared folder to the Raspberry as well.
+
+To have the command server started on startup, add the following to "/etc/xdg/lxsession/LXDE-pi/autostart":  
+        `@node /home/pi/Desktop/iradio_angular/command_server/app.js`
